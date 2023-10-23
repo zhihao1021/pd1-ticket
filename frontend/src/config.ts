@@ -1,2 +1,2 @@
-// export const apiEndPoint: string = "/api/v1";
-export const apiEndPoint: string = "http://localhost:8080";
+export const apiEndPoint: string = process.env.NODE_ENV === "development" ?
+    "http://localhost:8080" : "/api/v1";

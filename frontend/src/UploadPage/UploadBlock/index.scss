@@ -1,0 +1,42 @@
+#uploadPage {
+    .uploadBlock {
+        display: flex;
+        gap: 1em;
+        align-items: center;
+        div.button {
+            width: 6em;
+            height: 2.5rem;
+            line-height: 2.5rem;
+            border-radius: 0.5em;
+            font-size: 1.25rem;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s,
+        }
+        label.uploadButton {
+            div {
+                background-color: #474;
+            }
+            div:hover {
+                background-color: #696;
+            }
+            input {
+                display: none;
+            }
+        }
+        div.filename {
+            font-size: 1.2rem;
+        }
+        div.message {
+            color: #f66;
+            font-size: 1.5rem;
+        }
+        div.submit {
+            margin-left: auto;
+            background-color: #28B;
+        }
+        div.submit:hover {
+            background-color: #4AD;
+        }
+    }
+}

@@ -1,0 +1,80 @@
+#codePage {
+    .lastPage {
+        position: absolute;
+        top: 3vh;
+        left: 2vw;
+        color: #888;
+        user-select: none;
+        cursor: pointer;
+        transition: color 0.5s;
+    }
+    .lastPage:hover {
+        color: #FFF;
+    }
+    div.block.data {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        .infoBox.ticketId {
+            width: 100%;
+        }
+    }
+    div.block.code {
+        .secBlock {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            .buttonBar {
+                display: flex;
+                gap: 1rem;
+                div, a {
+                    font-size: 1.2rem;
+                    height: 2.2rem;
+                    line-height: 2.2rem;
+                    padding: 0 1rem;
+                    color: #FFF;
+                    border-radius: 0.5rem;
+                    text-align: center;
+                    text-decoration: none;
+                    transition: background-color 0.5s;
+                    cursor: pointer;
+                }
+                .copyLink {
+                    background-color: #474;
+                }
+                .copyLink:hover {
+                    background-color: #696;
+                }
+                .copyCode {
+                    background-color: #28B;
+                }
+                .copyCode:hover {
+                    background-color: #4AD;
+                }
+                a {
+                    background-color: #C61;
+                }
+                a:hover {
+                    background-color: #FA5;
+                }
+                .message {
+                    color: #FFF;
+                }
+            }
+            .emptyBox {
+                height: 5rem;
+                line-height: 5rem;
+                font-size: 2rem;
+                color: #888;
+                text-align: center;
+            }
+            pre {
+                border-top-left-radius: 1em;
+                margin: 0;
+                overflow-y: auto;
+                background-color: #000;
+                padding: 1rem;
+            }
+        }
+    }
+}

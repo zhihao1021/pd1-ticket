@@ -1,0 +1,15 @@
+.infoBox {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.2rem;
+    width: calc(50% - 0.25rem);
+    text-wrap: nowrap;
+    h3 {
+        margin: 0;
+    }
+    div {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}

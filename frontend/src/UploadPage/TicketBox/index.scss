@@ -1,0 +1,45 @@
+.ticketBox {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+    a, div {
+        display: block;
+        color: #FFF;
+        font-size: 1.2rem;
+        text-decoration: none;
+        cursor: pointer;
+        user-select: none;
+    }
+    a.name {
+        margin-right: auto;
+        max-width: calc(100% - 16.4rem);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-wrap: nowrap;
+    }
+    a.name:hover {
+        text-decoration: underline;
+    }
+    a.download,
+    div.delete {
+        height: 2.4rem;
+        line-height: 2.4rem;
+        border-radius: 0.5em;
+        width: 7.2rem;
+        text-align: center;
+        transition: background-color 0.5s;
+    }
+    div.delete {
+        background-color: #B11;
+    }
+    div.delete:hover {
+        background-color: #F55;
+    }
+    a.download {
+        background-color: #C61;
+    }
+    a.download:hover {
+        background-color: #FA5;
+    }
+}

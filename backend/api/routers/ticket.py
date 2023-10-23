@@ -75,7 +75,7 @@ async def add_ticket(
     
     response = Response(file_name)
     if new_token is not None:
-        response.set_cookie("token", new_token)
+        response.set_cookie("token", new_token, max_age=31536000)
     return response
 
 @route.get(

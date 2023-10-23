@@ -1,5 +1,5 @@
 from aiofile import async_open
-from fastapi import APIRouter, Cookie, HTTPException, Response, status, UploadFile
+from fastapi import APIRouter, Cookie, HTTPException, Request, Response, status, UploadFile
 from fastapi.responses import FileResponse
 
 from os import listdir, remove
@@ -7,7 +7,7 @@ from os.path import isfile, join, splitext
 from datetime import datetime, timedelta
 
 from config import ADMIN_TOKEN, DATA_DIR
-from utils.gen_token import gen_token
+from utils.gen_token import gen_token, hash_token
 
 route = APIRouter(
     prefix="/ticket",
@@ -27,8 +27,13 @@ permission_denied = HTTPException(
     path="",
     status_code=status.HTTP_200_OK,
 )
-async def get_all_ticket(token: str = Cookie("")):
-    if len(token) != 32: return []
+async def get_all_ticket(
+    request: Request,
+    token: str = Cookie("")
+):
+    if len(token) != 32:
+        return []
+    token = hash_token(token, request.client.host or "localhost")
     if token == ADMIN_TOKEN:
         return listdir(DATA_DIR)
     return list(filter(
@@ -40,13 +45,18 @@ async def get_all_ticket(token: str = Cookie("")):
     path="",
     status_code=status.HTTP_201_CREATED,
 )
-async def add_ticket(file: UploadFile, token: str = Cookie("")):
+async def add_ticket(
+    request: Request,
+    file: UploadFile,
+    token: str = Cookie("")
+):
     if file.size > 32 * 1024:
         raise file_oversize
     new_token = None
     if len(token) != 32:
         new_token = gen_token()
         token = new_token
+    token = hash_token(token, request.client.host or "localhost")
     
     timestamp = datetime.now().isoformat("T", "seconds")
     timestamp = timestamp.replace("-", "_").replace(":", ".")
@@ -71,14 +81,20 @@ async def add_ticket(file: UploadFile, token: str = Cookie("")):
     path="/{ticket_id}",
     status_code=status.HTTP_200_OK
 )
-async def get_ticket(ticket_id: str, token: str = Cookie("")):
+async def get_ticket(
+    request: Request,
+    ticket_id: str,
+    token: str = Cookie("")
+):
     if ticket_id not in listdir(DATA_DIR):
         raise permission_denied
     try:
+        token = hash_token(token, request.client.host or "localhost")
+
         timestamp = ticket_id.split("-")[1]
         timestamp = timestamp.replace("_", "-").replace(".", ":")
         expired = datetime.now() - datetime.fromisoformat(timestamp) > timedelta(days=3)
-        if not expired and token != ADMIN_TOKEN and not (ticket_id.startswith(token) and len(token) == 32):
+        if not expired and token != ADMIN_TOKEN and not (ticket_id.startswith(hash_token(token)) and len(token) == 32):
             raise permission_denied
         response = FileResponse(
             path=join(DATA_DIR, ticket_id),
@@ -93,9 +109,14 @@ async def get_ticket(ticket_id: str, token: str = Cookie("")):
     path="/{ticket_id}",
     status_code=status.HTTP_204_NO_CONTENT
 )
-async def delete_ticket(ticket_id: str, token: str = Cookie("")):
+async def delete_ticket(
+    request: Request,
+    ticket_id: str,
+    token: str = Cookie(""),
+):
     if len(token) != 32:
         raise permission_denied
+    token = hash_token(token, request.client.host or "localhost")
 
     if ticket_id not in listdir(DATA_DIR):
         raise permission_denied

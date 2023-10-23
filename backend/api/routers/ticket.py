@@ -53,10 +53,8 @@ async def add_ticket(
 ):
     if file.size > 32 * 1024:
         raise file_oversize
-    new_token = None
     if len(token) != 32:
-        new_token = gen_token()
-        token = new_token
+        token = gen_token()
     token = hash_token(token, request.client.host or "localhost")
     
     timestamp = datetime.now().isoformat("T", "seconds")
@@ -74,8 +72,7 @@ async def add_ticket(
         await write_file.write(content)
     
     response = Response(file_name)
-    if new_token is not None:
-        response.set_cookie("token", new_token, max_age=31536000)
+    response.set_cookie("token", token, max_age=31536000)
     return response
 
 @route.get(

@@ -7,7 +7,8 @@ from os.path import isfile, join, splitext
 from datetime import datetime, timedelta
 
 from config import ADMIN_TOKEN, DATA_DIR
-from utils.gen_token import gen_token, hash_token
+from utils.gen_token import gen_token
+from utils.hash_token import hash_token
 
 route = APIRouter(
     prefix="/ticket",

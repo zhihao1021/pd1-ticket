@@ -92,7 +92,11 @@ async def get_ticket(
 
         timestamp = ticket_id.split("-")[1]
         timestamp = timestamp.replace("_", "-").replace(".", ":")
-        expired = datetime.now() - datetime.fromisoformat(timestamp) > timedelta(days=3)
+        
+        datetime_timestamp = datetime.fromisoformat(timestamp)
+        delta_days = 3 - datetime_timestamp.weekday()
+        delta_days += 0 if delta_days > 0 else 7
+        expired = datetime.now() > (datetime_timestamp + timedelta(days=delta_days)).replace(hour=23, minute=59, second=59)
         if not expired and token != ADMIN_TOKEN and not (ticket_id.startswith(token) and len(token) == 32):
             raise permission_denied
         response = FileResponse(

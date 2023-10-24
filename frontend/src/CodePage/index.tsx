@@ -106,7 +106,7 @@ export default class CodePage extends React.Component<propsType, stateType> {
         fileDateTime = fileDateTime?.replace(
             "T", " "
         ).replaceAll("_", "/").replaceAll(".", ":");
-        const fileName = hash?.split("-", 3)[2];
+        const fileName = decodeURI(hash?.split("-", 3)[2] ?? "");
         return (
             <div id="codePage" className={show ? "page show" : "page"}>
                 <div
@@ -117,7 +117,7 @@ export default class CodePage extends React.Component<propsType, stateType> {
                     <h2>Info</h2>
                     <InfoBox title="上傳時間" context={fileDateTime ?? ""} />
                     <InfoBox title="檔案名稱" context={fileName ?? ""} />
-                    <InfoBox title="Ticket ID" className="ticketId" context={hash ?? ""} />
+                    <InfoBox title="Ticket ID" className="ticketId" context={decodeURI(hash ?? "")} />
                 </div>
                 <div className="code block">
                     <h2>Code Preview</h2>

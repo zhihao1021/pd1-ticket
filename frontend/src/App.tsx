@@ -1,5 +1,6 @@
 import React from "react";
 
+import Loading from "./Loading";
 import CodePage from "./CodePage";
 import UploadPage from "./UploadPage";
 
@@ -64,13 +65,17 @@ export default class App extends React.Component<propsType, stateType> {
 	render(): React.ReactNode {
 		return (
 			<div id="app">
-				<UploadPage
-					switchLoading={this.switchLoading}
-					show={this.state.showPage === 0}
+				<Loading
+					show={this.state.loading}
 				/>
+				<UploadPage
+					show={this.state.showPage === 0}
+					switchLoading={this.switchLoading}
+					/>
 				<CodePage
 					show={this.state.showPage === 1}
 					hash={this.state.hash}
+					switchLoading={this.switchLoading}
 					switchPage={this.switchPage}
 				/>
 			</div>

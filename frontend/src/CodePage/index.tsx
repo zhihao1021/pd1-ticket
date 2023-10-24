@@ -11,6 +11,7 @@ type propsType = Readonly<{
     show: boolean,
     hash: string | null,
     switchPage: (page: number) => void,
+    switchLoading: (status?: boolean) => void,
 }>;
 type stateType = Readonly<{
     code: string | null,
@@ -58,6 +59,7 @@ export default class CodePage extends React.Component<propsType, stateType> {
 
     getTicket(hash: string | null) {
         if (hash === null) return;
+        this.props.switchLoading(true);
         axios.get(`${apiEndPoint}/ticket/${hash}`, { withCredentials: true }).then(
             (response) => {
                 this.setState({
@@ -70,7 +72,11 @@ export default class CodePage extends React.Component<propsType, stateType> {
                     code: null
                 })
             }
-        )
+        ).finally(
+            () => {
+                this.props.switchLoading(false);
+            }
+        );
     }
 
     copy(context?: string, name?: string) {

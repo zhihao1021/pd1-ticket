@@ -93,16 +93,22 @@ export default class UploadPage extends React.Component<propsType, stateType> {
     }
 
     getAllTickets() {
+        this.props.switchLoading(true);
         axios.get(`${apiEndPoint}/ticket`, { withCredentials: true }).then(
             (response) => {
                 this.setState({
                     tickets: response.data
                 });
             }
-        )
+        ).finally(
+            () => {
+                this.props.switchLoading(false);
+            }
+        );
     }
 
     deleteTickets(ticketId: string) {
+        this.props.switchLoading(true);
         axios.delete(`${apiEndPoint}/ticket/${ticketId}`, { withCredentials: true }).then(
             () => {
                 this.setState(state => {
@@ -116,6 +122,10 @@ export default class UploadPage extends React.Component<propsType, stateType> {
             () => {
                 this.getAllTickets();
                 alert("發生錯誤")
+            }
+        ).finally(
+            () => {
+                this.props.switchLoading(false);
             }
         )
     }

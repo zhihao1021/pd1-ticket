@@ -8,6 +8,7 @@ import { apiEndPoint } from "../config";
 import "./index.scss";
 
 type propsType = Readonly<{
+    login: boolean,
     show: boolean,
     hash: string | null,
     switchPage: (page: number) => void,
@@ -49,34 +50,38 @@ export default class CodePage extends React.Component<propsType, stateType> {
     }
 
     componentDidMount(): void {
-        this.getTicket(this.props.hash);
+        if (this.props.login) {
+            this.getTicket(this.props.hash);
+        }
     }
 
     componentDidUpdate(prevProps: propsType, prevState: stateType): void {
-        if (this.props.hash === null || this.props.hash === prevProps.hash) return;
+        if (this.props.login && !prevProps.login) {
+            this.getTicket(this.props.hash);
+            return;
+        }
+        else if (this.props.hash === null || this.props.hash === prevProps.hash) {
+            return;
+        }
         this.getTicket(this.props.hash);
     }
 
     getTicket(hash: string | null) {
         if (hash === null) return;
         this.props.switchLoading(true);
-        axios.get(`${apiEndPoint}/ticket/${hash}`, { withCredentials: true }).then(
-            (response) => {
-                this.setState({
-                    code: response.data
-                });
-            }
-        ).catch(
-            () => {
-                this.setState({
-                    code: null
-                })
-            }
-        ).finally(
-            () => {
-                this.props.switchLoading(false);
-            }
-        );
+        axios.get(
+            `${apiEndPoint}/ticket/${hash}`,
+        ).then((response) => {
+            this.setState({
+                code: response.data
+            });
+        }).catch(() => {
+            this.setState({
+                code: null
+            })
+        }).finally(() => {
+            this.props.switchLoading(false);
+        });
     }
 
     copy(context?: string, name?: string) {
@@ -84,19 +89,19 @@ export default class CodePage extends React.Component<propsType, stateType> {
             this.setState({buttonMessage: `複製${name}失敗`});
             return;
         }
-        navigator.clipboard.writeText(context).then(
-            () => {
-                this.setState({buttonMessage: `複製${name}成功`,});
-            }
-        ).catch(
-            () => {
-                this.setState({buttonMessage: `複製${name}失敗`,});
-            }
-        )
+        navigator.clipboard.writeText(context).then(() => {
+            this.setState({buttonMessage: `複製${name}成功`,});
+        }).catch(() => {
+            this.setState({buttonMessage: `複製${name}失敗`,});
+        });
     }
 
     render(): React.ReactNode {
-        const {show, hash} = this.props;
+        const {
+            login,
+            show,
+            hash
+        } = this.props;
         const {
             code,
             buttonMessage,
@@ -108,7 +113,7 @@ export default class CodePage extends React.Component<propsType, stateType> {
         ).replaceAll("_", "/").replaceAll(".", ":");
         const fileName = decodeURI(hash?.split("-", 3)[2] ?? "");
         return (
-            <div id="codePage" className={show ? "page show" : "page"}>
+            <div id="codePage" className={show && login ? "page show" : "page"}>
                 <div
                     className="lastPage"
                     onClick={()=>{window.location.hash=""}}

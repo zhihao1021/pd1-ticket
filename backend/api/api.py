@@ -6,7 +6,10 @@ from uvicorn import Config, Server
 
 from config import API_ROOT_PATH, HOST, PORT
 
-from .routers import ticket_router
+from .routers import (
+    ticket_router,
+    oauth_router,
+)
 
 app = FastAPI(
     version="0.1.0",
@@ -24,6 +27,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(oauth_router)
 app.include_router(ticket_router)
 
 async def api_run(loop: BaseEventLoop):

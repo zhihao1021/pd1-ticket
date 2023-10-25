@@ -15,7 +15,7 @@ export default function Loading(props: propsType): React.ReactElement {
                 {
                     Array.from(Array(12)).map((value, index) => {
                         return <div
-                            key={value}
+                            key={index}
                             className="dot"
                             style={
                                 {

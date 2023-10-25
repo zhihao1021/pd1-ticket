@@ -1,6 +1,7 @@
 import React from "react";
 
 import Loading from "./Loading";
+import LoginPage from "./LoginPage";
 import CodePage from "./CodePage";
 import UploadPage from "./UploadPage";
 
@@ -10,7 +11,8 @@ type propsType = Readonly<{}>;
 type stateType = Readonly<{
 	hash: string | null,
 	showPage: number,
-	loading: boolean
+	loading: boolean,
+	login: boolean,
 }>;
 
 export default class App extends React.Component<propsType, stateType> {
@@ -21,11 +23,15 @@ export default class App extends React.Component<propsType, stateType> {
 			hash: null,
 			showPage: 0,
 			loading: false,
+			login: localStorage.getItem("access_token") !== null &&
+				localStorage.getItem("token_type") !== null,
 		};
 
 		this.getHash = this.getHash.bind(this);
 		this.switchPage = this.switchPage.bind(this);
 		this.switchLoading = this.switchLoading.bind(this);
+		this.checkLogin = this.checkLogin.bind(this);
+		this.logout = this.logout.bind(this);
 
 		window.addEventListener("hashchange", this.getHash);
 	}
@@ -49,6 +55,19 @@ export default class App extends React.Component<propsType, stateType> {
 		return hash;
 	}
 
+	checkLogin(): void {
+		this.setState({
+			login: localStorage.getItem("access_token") !== null &&
+				localStorage.getItem("token_type") !== null,
+		});
+	}
+
+	logout() {
+		localStorage.removeItem("access_token");
+		localStorage.removeItem("token_type");
+		this.checkLogin();
+	}
+
 	switchPage(page: number): void {
 		if (page === this.state.showPage) return;
 		this.setState({showPage: page});
@@ -63,18 +82,38 @@ export default class App extends React.Component<propsType, stateType> {
 	}
 
 	render(): React.ReactNode {
+		const {
+			hash,
+			showPage,
+			loading,
+			login
+		} = this.state;
 		return (
 			<div id="app">
+				{
+					login ?
+					<div
+						className="logoutButton"
+						onClick={this.logout}
+					>Logout</div> : null
+				}
 				<Loading
-					show={this.state.loading}
+					show={loading}
+					/>
+				<LoginPage
+					show={!login}
+					checkLogin={this.checkLogin}
+					switchLoading={this.switchLoading}
 				/>
 				<UploadPage
-					show={this.state.showPage === 0}
+					login={login}
+					show={showPage === 0}
 					switchLoading={this.switchLoading}
-					/>
+				/>
 				<CodePage
-					show={this.state.showPage === 1}
-					hash={this.state.hash}
+					login={login}
+					show={showPage === 1}
+					hash={hash}
 					switchLoading={this.switchLoading}
 					switchPage={this.switchPage}
 				/>

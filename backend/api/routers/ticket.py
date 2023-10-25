@@ -41,11 +41,6 @@ async def get_all_ticket(
         lambda file_name: file_name.startswith(token),
         listdir(DATA_DIR))
     )
-    result.sort(
-        key=lambda x: datetime.fromisoformat(
-            x.split("-", 2)[1].replace("_", "-").replace(".", ":")
-        ).timestamp()
-    )
 
     return result
 

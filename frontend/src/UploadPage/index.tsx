@@ -96,8 +96,14 @@ export default class UploadPage extends React.Component<propsType, stateType> {
         this.props.switchLoading(true);
         axios.get(`${apiEndPoint}/ticket`, { withCredentials: true }).then(
             (response) => {
+                let tickets: Array<string> = response.data;
+                tickets.sort((v1, v2) => {
+                    let t1 = v1.split("-", 2)[1].replaceAll("_", "").replaceAll(".", "").replace("T", "");
+                    let t2 = v2.split("-", 2)[1].replaceAll("_", "").replaceAll(".", "").replace("T", "");
+                    return parseInt(t2) - parseInt(t1);
+                });
                 this.setState({
-                    tickets: response.data
+                    tickets: tickets,
                 });
             }
         ).finally(

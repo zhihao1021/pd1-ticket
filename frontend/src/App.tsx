@@ -1,4 +1,5 @@
 import React from "react";
+import jwtDecode from "jwt-decode";
 
 import Loading from "./Loading";
 import LoginPage from "./LoginPage";
@@ -13,6 +14,7 @@ type stateType = Readonly<{
 	showPage: number,
 	loading: boolean,
 	login: boolean,
+	username: string
 }>;
 
 export default class App extends React.Component<propsType, stateType> {
@@ -25,6 +27,7 @@ export default class App extends React.Component<propsType, stateType> {
 			loading: false,
 			login: localStorage.getItem("access_token") !== null &&
 				localStorage.getItem("token_type") !== null,
+			username: "",
 		};
 
 		this.getHash = this.getHash.bind(this);
@@ -38,6 +41,7 @@ export default class App extends React.Component<propsType, stateType> {
 
 	componentDidMount(): void {
 		this.getHash();
+		this.checkLogin();
 	}
 
 	getHash(): string | null {
@@ -56,9 +60,26 @@ export default class App extends React.Component<propsType, stateType> {
 	}
 
 	checkLogin(): void {
-		this.setState({
-			login: localStorage.getItem("access_token") !== null &&
-				localStorage.getItem("token_type") !== null,
+		this.setState((state) => {
+			let logined = localStorage.getItem("access_token") !== null &&
+				localStorage.getItem("token_type") !== null
+			let token = localStorage.getItem("access_token");
+			let username: string | null = null;
+			if (logined && token !== null) {
+				try {
+					let jwtData: {
+						username: string,
+						password: string,
+						admin: boolean,
+					} = jwtDecode(token);
+					username = jwtData.username;
+				}
+				catch {}
+			}
+			return {
+				login: logined,
+				username: username ?? "",
+			}
 		});
 	}
 
@@ -86,16 +107,22 @@ export default class App extends React.Component<propsType, stateType> {
 			hash,
 			showPage,
 			loading,
-			login
+			login,
+			username
 		} = this.state;
 		return (
 			<div id="app">
 				{
 					login ?
-					<div
-						className="logoutButton"
-						onClick={this.logout}
-					>Logout</div> : null
+					<div className="logoutBlock">
+						<div className="username">
+							{username}
+						</div>
+						<div
+							className="logoutButton"
+							onClick={this.logout}
+						>Logout</div>
+					</div> : null
 				}
 				<Loading
 					show={loading}

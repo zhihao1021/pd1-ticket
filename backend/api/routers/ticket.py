@@ -37,10 +37,13 @@ async def get_all_ticket(
     token = hash_token(token, request.client.host or "localhost")
     if token == ADMIN_TOKEN:
         return listdir(DATA_DIR)
-    return list(filter(
+    result: list[str] = list(filter(
         lambda file_name: file_name.startswith(token),
         listdir(DATA_DIR))
     )
+    result.sort(key=lambda x: x.split("-", 2)[1])
+
+    return result
 
 @route.post(
     path="",

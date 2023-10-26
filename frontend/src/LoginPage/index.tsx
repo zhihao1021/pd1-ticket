@@ -56,8 +56,6 @@ export default class LoginPage extends React.Component<propsType, stateType> {
             username,
             password
         } = this.state;
-        console.log(username ?? "")
-        console.log(password ?? "")
         if (((username ?? "") === "") || ((password ?? "") === "")) {
             this.setState({
                 username: "",

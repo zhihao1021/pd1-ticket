@@ -9,6 +9,7 @@ from config import API_ROOT_PATH, HOST, PORT
 from .routers import (
     ticket_router,
     oauth_router,
+    upload_router,
 )
 
 app = FastAPI(
@@ -29,6 +30,7 @@ app.add_middleware(
 
 app.include_router(oauth_router)
 app.include_router(ticket_router)
+app.include_router(upload_router)
 
 async def api_run(loop: BaseEventLoop):
     config = Config(

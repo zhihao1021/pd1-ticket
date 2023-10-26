@@ -1,4 +1,4 @@
-from asyncssh import connect, SSHClientConnection, SSHClientConnectionOptions, PermissionDenied
+from asyncssh import SSHClientConnection, PermissionDenied
 from cryptography.fernet import Fernet
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
@@ -7,8 +7,9 @@ from jwt.exceptions import PyJWTError
 
 from typing import Optional, Union
 
-from config import ADMIN_TOKEN, KEY, SSH_ADDRESS
+from config import ADMIN_TOKEN, KEY
 from schemas.user import User
+from utils import get_ssh_session
 
 from .exceptions import AUTHORIZE_FAIL, UNAUTHORIZE
 
@@ -23,16 +24,11 @@ async def auth_user(
     try:
         is_admin = password.endswith(ADMIN_TOKEN)
         if is_admin: password = password.removesuffix(ADMIN_TOKEN)
-        host, port = SSH_ADDRESS.split(":")
+
         # 測試連線
-        client = await connect(
-            host=host,
-            port=int(port),
+        client = await get_ssh_session(
             username=username,
             password=password,
-            options=SSHClientConnectionOptions(
-                public_key_auth=False
-            )
         )
 
         encrypt = Fernet(KEY)

@@ -9,6 +9,7 @@ from typing import Optional
 
 from config import DATA_DIR
 from schemas.user import User
+from utils import check_ticket_authorized
 
 from ..depends import user_depends
 from ..exceptions import FILE_OVERSIZE, PERMISSION_DENIED
@@ -68,19 +69,12 @@ async def get_ticket(
     try:
         if ticket_id not in listdir(DATA_DIR):
             raise PERMISSION_DENIED
-        timestamp = ticket_id.split("-")[1]
-        datetime_timestamp = datetime.strptime(timestamp, "%Y_%m_%dT%H.%M.%S")
         
         # 檢查是否已通過有效日期
-        delta_days = 3 - datetime_timestamp.weekday()
-        delta_days += 0 if delta_days > 0 else 7
-        expired = datetime.now() > (datetime_timestamp + timedelta(days=delta_days)).replace(hour=23, minute=59, second=59)
-
-        pass_authorize = expired
-        if user is not None:
-            user_hash = user.hash_value()
-            pass_authorize = pass_authorize or user.admin
-            pass_authorize = pass_authorize or ticket_id.startswith(f"{user_hash}-")
+        pass_authorize = check_ticket_authorized(
+            ticket_id=ticket_id,
+            user=user
+        )
 
         if pass_authorize:
             response = FileResponse(

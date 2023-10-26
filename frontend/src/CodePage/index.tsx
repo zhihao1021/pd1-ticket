@@ -17,6 +17,8 @@ type propsType = Readonly<{
 type stateType = Readonly<{
     code: string | null,
     buttonMessage: string,
+    dirPath: string,
+    filename: string,
 }>;
 
 export default class CodePage extends React.Component<propsType, stateType> {
@@ -28,6 +30,8 @@ export default class CodePage extends React.Component<propsType, stateType> {
         this.state = {
             code: null,
             buttonMessage: "",
+            dirPath: "",
+            filename: "",
         };
 
         this.copyLink = () => {
@@ -47,6 +51,7 @@ export default class CodePage extends React.Component<propsType, stateType> {
         }
         this.copyLink = this.copyLink.bind(this);
         this.copyCode = this.copyCode.bind(this);
+        this.uploadTicket = this.uploadTicket.bind(this);
     }
 
     componentDidMount(): void {
@@ -66,6 +71,19 @@ export default class CodePage extends React.Component<propsType, stateType> {
         this.getTicket(this.props.hash);
     }
 
+    onInputChange(field: string) {
+        const __func = (ev: React.ChangeEvent) => {
+            let target = ev.target as HTMLInputElement;
+            let value = target.value;
+            this.setState((state) => {
+                let newState = state as {[key: string]: string};
+                newState[field] = value;
+                return newState as stateType;
+            });
+        };
+        return __func.bind(this);
+    }
+
     getTicket(hash: string | null) {
         if (hash === null) return;
         this.props.switchLoading(true);
@@ -82,6 +100,32 @@ export default class CodePage extends React.Component<propsType, stateType> {
         }).finally(() => {
             this.props.switchLoading(false);
         });
+    }
+
+    uploadTicket() {
+        const {hash} = this.props;
+        if (hash === null) {
+            return;
+        }
+        const {
+            dirPath,
+            filename
+        } = this.state;
+        this.props.switchLoading(true);
+        axios.postForm(
+            `${apiEndPoint}/upload`,
+            {
+                ticket_id: decodeURI(hash),
+                dir_path: dirPath,
+                filename: filename
+            }
+        ).then((response) => {
+            this.setState({buttonMessage: `上傳成功: ~/${response.data}`,});
+        }).catch(() => {
+            this.setState({buttonMessage: "上傳失敗",});
+        }).finally(() => {
+            this.props.switchLoading(false);
+        })
     }
 
     copy(context?: string, name?: string) {
@@ -105,6 +149,8 @@ export default class CodePage extends React.Component<propsType, stateType> {
         const {
             code,
             buttonMessage,
+            dirPath,
+            filename
         } = this.state;
 
         let fileDateTime = hash?.split("-", 2)[1];
@@ -130,8 +176,21 @@ export default class CodePage extends React.Component<propsType, stateType> {
                         <div className="buttonBar">
                             <div className="copyLink" onClick={this.copyLink}>Copy Link</div>
                             <div className="copyCode" onClick={this.copyCode}>Copy Code</div>
-                            <a href={`${apiEndPoint}/ticket/${hash}`}>Download</a>
+                            <a className="download" href={`${apiEndPoint}/ticket/${hash}`}>Download</a>
                             <div className="message">{buttonMessage}</div>
+                            <input
+                                className="path"
+                                placeholder="Path"
+                                value={dirPath}
+                                onChange={this.onInputChange("dirPath")}
+                            />
+                            <input
+                                className="filename"
+                                placeholder="Filename"
+                                value={filename}
+                                onChange={this.onInputChange("filename")}
+                            />
+                            <div className="upload" onClick={this.uploadTicket}>Upload</div>
                         </div>
                         {
                             code === null? 

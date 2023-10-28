@@ -1,8 +1,12 @@
-from asyncio import BaseEventLoop
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from uvicorn import Config, Server
+from uvicorn.config import LOGGING_CONFIG
+
+from asyncio import BaseEventLoop
+from copy import deepcopy
+from datetime import datetime
+from logging import FileHandler, getLogger, INFO
 
 from config import API_ROOT_PATH, HOST, PORT
 
@@ -33,11 +37,60 @@ app.include_router(ticket_router)
 app.include_router(upload_router)
 
 async def api_run(loop: BaseEventLoop):
+    logging_file_name = datetime.now().strftime("logs/%Y-%m-%d %H_%M_%S.log")
+    logging_config = deepcopy(LOGGING_CONFIG)
+    formatters_config = {
+        "default_nocolor": {
+            "()": "uvicorn.logging.DefaultFormatter",
+            "fmt": "%(levelprefix)s %(message)s",
+            "use_colors": False,
+        },
+        "access_nocolor": {
+            "()": "uvicorn.logging.AccessFormatter",
+            "fmt": '%(levelprefix)s %(client_addr)s - "%(request_line)s" %(status_code)s',
+            "use_colors": False,
+        }
+    }
+    handlers_config = {
+        "default_file": {
+            "formatter": "default_nocolor",
+            "class": "logging.FileHandler",
+            "filename": logging_file_name,
+            "encoding": "utf-8"
+        },
+        "access_file": {
+            "formatter": "access_nocolor",
+            "class": "logging.FileHandler",
+            "filename": logging_file_name,
+            "encoding": "utf-8"
+        }
+    }
+    logging_config["formatters"].update(formatters_config)
+    logging_config["handlers"].update(handlers_config)
+    logging_config["loggers"]["uvicorn"]["handlers"].append("default_file")
+    logging_config["loggers"]["uvicorn.access"]["handlers"].append("access_file")
+
+
+
+    # "default": {
+    #     "formatter": "default",
+    #     "class": "logging.StreamHandler",
+    #     "stream": "ext://sys.stderr",
+    # },
+    # "access": {
+    #     "formatter": "access",
+    #     "class": "logging.StreamHandler",
+    #     "stream": "ext://sys.stdout",
+    # },
     config = Config(
         app=app,
         host=HOST,
         port=PORT,
         loop=loop,
+        log_config=logging_config
     )
     server = Server(config)
+
+    uvicorn_logger = getLogger("uvicorn")
+    print(uvicorn_logger.handlers)
     await server.serve()

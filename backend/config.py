@@ -34,3 +34,5 @@ ADMIN_TOKEN = config["admin_token"]
 
 if not isdir(DATA_DIR):
     makedirs(DATA_DIR)
+if not isdir("logs"):
+    makedirs("logs")

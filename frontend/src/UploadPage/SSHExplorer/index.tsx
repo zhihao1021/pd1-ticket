@@ -129,7 +129,8 @@ export default class SSHExplorer extends React.Component<propsType, stateType> {
 
     render(): React.ReactNode {
         const {
-            show
+            show,
+            switchExplorer,
         } = this.props;
         const {
             selectedFile,
@@ -165,6 +166,7 @@ export default class SSHExplorer extends React.Component<propsType, stateType> {
                         <div className="path">選擇檔案: <span>{selectedFile}</span></div>
                         <div className="message">{message}</div>
                         <button onClick={this.sendPullRequest}>上傳</button>
+                        <button onClick={() => {switchExplorer(false)}}>取消</button>
                     </div>
                 </div>
             </div>

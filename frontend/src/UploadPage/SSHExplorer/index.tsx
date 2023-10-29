@@ -30,15 +30,15 @@ export default class SSHExplorer extends React.Component<propsType, stateType> {
             files: [],
             message: "",
         };
-        // this.ws = undefined;
+        this.ws = undefined;
 
         this.wsUpdate = this.wsUpdate.bind(this);
-        const token = localStorage.getItem("access_token")
-        const originUrl = apiEndPoint.startsWith("http") ? apiEndPoint : `${window.location.origin}${apiEndPoint}`;
-        this.ws = new WebSocket(`${originUrl.replace("http", "ws")}/pull/explorer?token=${token}`);
-        this.ws.addEventListener("message", this.wsUpdate);
-
         this.sendPullRequest = this.sendPullRequest.bind(this);
+        // const token = localStorage.getItem("access_token")
+        // const originUrl = apiEndPoint.startsWith("http") ? apiEndPoint : `${window.location.origin}${apiEndPoint}`;
+        // this.ws = new WebSocket(`${originUrl.replace("http", "ws")}/pull/explorer?token=${token}`);
+        // this.ws.addEventListener("message", this.wsUpdate);
+
     }
 
     componentDidUpdate(prevProps: propsType, prevState: stateType): void {

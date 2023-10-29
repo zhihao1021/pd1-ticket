@@ -46,7 +46,7 @@ async def upload_file(
         )
         sftp = await client.start_sftp_client()
         dir_path = dir_path.removeprefix("~/")
-        filename = filename or f"{ticket_id.rsplit('-', 1)[-1]}.c"
+        filename = filename or ticket_id.split('-', 2)[-1]
         path = join(dir_path, filename).replace("\\", "/")
         if (dir_path != "" and not await sftp.isdir(dir_path)):
             await sftp.makedirs(dir_path)

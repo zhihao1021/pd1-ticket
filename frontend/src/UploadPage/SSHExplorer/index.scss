@@ -86,7 +86,6 @@
                 min-width: 7.2rem;
                 outline: none;
                 border: none;
-                background-color: #519;
                 height: 2.4rem;
                 line-height: 2.4rem;
                 border-radius: 0.5rem;
@@ -94,8 +93,17 @@
                 cursor: pointer;
                 transition: background-color 0.5s;
             }
-            button:hover {
+            button.upload {
+                background-color: #519;
+            }
+            button.upload:hover {
                 background-color: #84C;
+            }
+            button.cancel {
+                background-color: #915;
+            }
+            button.cancel:hover {
+                background-color: #C48;
             }
         }
     }

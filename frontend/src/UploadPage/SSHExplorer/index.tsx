@@ -165,8 +165,8 @@ export default class SSHExplorer extends React.Component<propsType, stateType> {
                     <div className="buttonBar">
                         <div className="path">選擇檔案: <span>{selectedFile}</span></div>
                         <div className="message">{message}</div>
-                        <button onClick={this.sendPullRequest}>上傳</button>
-                        <button onClick={() => {switchExplorer(false)}}>取消</button>
+                        <button className="upload" onClick={this.sendPullRequest}>上傳</button>
+                        <button className="cancel" onClick={() => {switchExplorer(false)}}>取消</button>
                     </div>
                 </div>
             </div>

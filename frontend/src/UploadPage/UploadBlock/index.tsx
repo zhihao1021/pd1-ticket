@@ -5,6 +5,7 @@ import "./index.scss";
 type propsType = Readonly<{
     selectFile: (event: React.ChangeEvent<HTMLInputElement>) => void,
     sendFile: () => void,
+    switchExplorer: (status?: boolean) => void,
     selectedFile: File | null,
     uploadMessage: string,
 }>;
@@ -13,12 +14,14 @@ export default function UploadBlock(props: propsType): React.ReactElement {
     const {
         selectFile,
         sendFile,
+        switchExplorer,
         selectedFile,
         uploadMessage
     } = props;
     return (
         <div className="uploadBlock block">
             <h2>Upload File</h2>
+            <div className="server button" onClick={() => {switchExplorer(true)}}>從伺服器選擇</div>
             <label className="uploadButton">
                 <div className="button">選擇檔案</div>
                 <input

@@ -142,7 +142,6 @@ export default class App extends React.Component<propsType, stateType> {
 					show={showPage === 1}
 					hash={hash}
 					switchLoading={this.switchLoading}
-					switchPage={this.switchPage}
 				/>
 			</div>
 		);

@@ -11,7 +11,6 @@ type propsType = Readonly<{
     login: boolean,
     show: boolean,
     hash: string | null,
-    switchPage: (page: number) => void,
     switchLoading: (status?: boolean) => void,
 }>;
 type stateType = Readonly<{
@@ -152,6 +151,7 @@ export default class CodePage extends React.Component<propsType, stateType> {
             dirPath,
             filename
         } = this.state;
+        const token = localStorage.getItem("access_token");
 
         let fileDateTime = hash?.split("-", 2)[1];
         fileDateTime = fileDateTime?.replace(
@@ -176,7 +176,7 @@ export default class CodePage extends React.Component<propsType, stateType> {
                         <div className="buttonBar">
                             <div className="copyLink" onClick={this.copyLink}>Copy Link</div>
                             <div className="copyCode" onClick={this.copyCode}>Copy Code</div>
-                            <a className="download" href={`${apiEndPoint}/ticket/${hash}`}>Download</a>
+                            <a className="download" href={`${apiEndPoint}/ticket/download/${hash}?token=${token}`}>Download</a>
                             <div className="message">{buttonMessage}</div>
                             <input
                                 className="path"

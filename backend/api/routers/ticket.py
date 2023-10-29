@@ -2,17 +2,40 @@ from aiofile import async_open
 from fastapi import APIRouter, status, UploadFile
 from fastapi.responses import FileResponse
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from os import listdir, remove
-from os.path import join, splitext
-from typing import Optional
+from os.path import join
 
 from config import DATA_DIR
 from schemas.user import User
 from utils import check_ticket_authorized
 
 from ..depends import user_depends
+from ..validator import get_user
 from ..exceptions import FILE_OVERSIZE, PERMISSION_DENIED
+
+async def __get_ticket(user: User, ticket_id: str):
+    try:
+        if ticket_id not in listdir(DATA_DIR):
+            raise PERMISSION_DENIED
+        
+        # 檢查是否已通過有效日期
+        pass_authorize = check_ticket_authorized(
+            ticket_id=ticket_id,
+            user=user
+        )
+
+        if pass_authorize:
+            response = FileResponse(
+                path=join(DATA_DIR, ticket_id),
+                media_type="text/plain",
+                filename=ticket_id
+            )
+        else:
+            raise PERMISSION_DENIED
+        return response
+    except:
+        raise PERMISSION_DENIED
 
 route = APIRouter(
     prefix="/ticket",
@@ -50,7 +73,7 @@ async def add_ticket(
 
     timestamp = datetime.now().strftime("%Y_%m_%dT%H.%M.%S")
     file_name = f"{user_hash}-{timestamp}-{file.filename}"
-    file_name = splitext(file_name)[0]
+    file_name = file_name
 
     content = await file.read()
     async with async_open(join(DATA_DIR, file_name), "wb") as write_file:
@@ -64,29 +87,20 @@ async def add_ticket(
 )
 async def get_ticket(
     ticket_id: str,
-    user: User=user_depends,
+    user: User = user_depends
 ):
-    try:
-        if ticket_id not in listdir(DATA_DIR):
-            raise PERMISSION_DENIED
-        
-        # 檢查是否已通過有效日期
-        pass_authorize = check_ticket_authorized(
-            ticket_id=ticket_id,
-            user=user
-        )
+    return await __get_ticket(user, ticket_id)
 
-        if pass_authorize:
-            response = FileResponse(
-                path=join(DATA_DIR, ticket_id),
-                media_type="text/plain",
-                filename=f"{ticket_id}.c"
-            )
-        else:
-            raise PERMISSION_DENIED
-        return response
-    except:
-        raise PERMISSION_DENIED
+@route.get(
+    path="/download/{ticket_id}",
+    status_code=status.HTTP_200_OK
+)
+async def get_ticket_download(
+    ticket_id: str,
+    token: str
+):
+    user: User = await get_user(token)
+    return await __get_ticket(user, ticket_id)
 
 @route.delete(
     path="/{ticket_id}",

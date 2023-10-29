@@ -11,15 +11,17 @@ async def main():
             username="F74124773",
             password="F74124773",
         )
+        print(int((await conn.run("echo $UID")).stdout))
         sftp = await conn.start_sftp_client()
-        print(await sftp.isdir(""))
-        # if not await sftp.isdir("HW8/123"):
-        #     await sftp.makedirs("HW8/123")
-        # await sftp.put("main.py", "HW8/123/main.py")
-        sftp.exit()
-        await sftp.wait_closed()
+        # print(await sftp.realpath("HW6/../HW6/hw6.c"))
+        res = await sftp.readdir("/")
+        for i in res:
+            print(bool(i.attrs.permissions & 0b100 or i.attrs.uid==1178), i.attrs.type, i.filename)
+        # sftp.exit()
+        # await sftp.wait_closed()
     except Exception as e:
-        print(e)
+        print("EXC:", e)
+        print("EXC Class:", e.__class__)
     finally:
         if conn:
             conn.close()

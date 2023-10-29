@@ -24,3 +24,8 @@ PERMISSION_DENIED = HTTPException(
     status_code=status.HTTP_403_FORBIDDEN,
     detail="Permission denied.",
 )
+
+FILE_NOT_FOUND = HTTPException(
+    status_code=status.HTTP_404_NOT_FOUND,
+    detail="File not found",
+)

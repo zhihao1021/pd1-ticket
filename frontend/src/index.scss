@@ -5,8 +5,10 @@
   font-family: "Noto Sans TC", sans-serif;
 }
 
-:root {
-  font-size: 1vw;
+@media (max-aspect-ratio: 1/1) {
+  :root {
+    font-size: 3vw;
+  }
 }
 
 body {

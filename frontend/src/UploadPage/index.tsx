@@ -1,13 +1,14 @@
 import axios from "axios";
 import React from "react";
 
+import SSHExplorer from "./SSHExplorer";
 import UploadBlock from "./UploadBlock";
 import TicketBlock from "./TicketBlock";
 import TicketBox from "./TicketBox";
 
 import { apiEndPoint } from "../config";
 
-// import "./index.scss"
+import "./index.scss"
 
 type propsType = Readonly<{
     login: boolean,
@@ -18,6 +19,7 @@ type stateType = Readonly<{
     tickets: Array<string>,
     selectedFile: File | null,
     uploadMessage: string,
+    showExplorer: boolean,
 }>;
 
 export default class UploadPage extends React.Component<propsType, stateType> {
@@ -28,12 +30,15 @@ export default class UploadPage extends React.Component<propsType, stateType> {
             tickets: [],
             selectedFile: null,
             uploadMessage: "",
+            showExplorer: false
         };
 
         this.selectFile = this.selectFile.bind(this);
         this.sendFile = this.sendFile.bind(this);
         this.getAllTickets = this.getAllTickets.bind(this);
         this.deleteTicket = this.deleteTicket.bind(this);
+        this.unshiftTicket = this.unshiftTicket.bind(this);
+        this.switchExplorer = this.switchExplorer.bind(this);
     }
 
     componentDidMount(): void {
@@ -46,6 +51,24 @@ export default class UploadPage extends React.Component<propsType, stateType> {
         if (this.props.login && !prevProps.login) {
             this.getAllTickets();
         }
+    }
+
+    unshiftTicket(ticket_id: string) {
+        this.setState(state => {
+            const originTickets = state.tickets;
+            originTickets.unshift(ticket_id);
+            return {
+                tickets: originTickets
+            };
+        })
+    }
+
+    switchExplorer(status?: boolean) {
+        this.setState(state => {
+            return {
+                showExplorer: status ?? !state.showExplorer
+            };
+        });
     }
 
     // 選擇檔案
@@ -74,8 +97,7 @@ export default class UploadPage extends React.Component<propsType, stateType> {
         formData.append("file", file);
 
         // 發送請求
-        axios.post
-            (`${apiEndPoint}/ticket`,
+        axios.post(`${apiEndPoint}/ticket`,
             formData
         ).then((response) => {
             // 清空選擇檔案
@@ -84,16 +106,12 @@ export default class UploadPage extends React.Component<propsType, stateType> {
                 selectedFile: null,
             });
             // 更新列表
-            this.setState(state => {
-                const originTickets = state.tickets;
-                originTickets.unshift(response.data);
-                return {
-                    tickets: originTickets
-                };
-            })
-        }).catch(() => {
+            this.unshiftTicket(response.data);
+            window.location.hash = response.data;
+        }).catch((error) => {
             this.setState({
-                uploadMessage: "發生錯誤"
+                uploadMessage: `發生錯誤: ${error.response.data.detail}`,
+                selectedFile: null
             });
         }).finally(() => {
             // 關閉載入畫面
@@ -153,26 +171,43 @@ export default class UploadPage extends React.Component<propsType, stateType> {
     render(): React.ReactNode {
         const {
             login,
-            show
+            show,
+            switchLoading
         } = this.props;
         const {
             tickets,
             selectedFile,
             uploadMessage,
+            showExplorer,
         } = this.state;
+
+        const classList = ["page"];
+        if (show && login) {
+            classList.push("show");
+        }
+        if (showExplorer) {
+            classList.push("showExplorer")
+        }
         return (
-            <div id="uploadPage" className={show && login ? "page show" : "page"}>
+            <div id="uploadPage" className={classList.join(" ")}>
                 <UploadBlock
                     selectFile={this.selectFile}
                     sendFile={this.sendFile}
                     selectedFile={selectedFile}
                     uploadMessage={uploadMessage}
+                    switchExplorer={this.switchExplorer}
                 />
                 <TicketBlock>
                     {tickets.map((ticketId, index) => 
                         <TicketBox key={index} deleteTicket={this.deleteTicket} ticketId={ticketId}></TicketBox>
                     )}
                 </TicketBlock>
+                <SSHExplorer
+                    show={showExplorer}
+                    switchLoading={switchLoading}
+                    unshiftTicket={this.unshiftTicket}
+                    switchExplorer={this.switchExplorer}
+                />
             </div>
         );
     }

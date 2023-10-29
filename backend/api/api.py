@@ -12,6 +12,7 @@ from config import API_ROOT_PATH, HOST, PORT
 
 from .routers import (
     ticket_router,
+    pull_router,
     oauth_router,
     upload_router,
 )
@@ -33,6 +34,7 @@ app.add_middleware(
 )
 
 app.include_router(oauth_router)
+app.include_router(pull_router)
 app.include_router(ticket_router)
 app.include_router(upload_router)
 
@@ -70,18 +72,6 @@ async def api_run(loop: BaseEventLoop):
     logging_config["loggers"]["uvicorn"]["handlers"].append("default_file")
     logging_config["loggers"]["uvicorn.access"]["handlers"].append("access_file")
 
-
-
-    # "default": {
-    #     "formatter": "default",
-    #     "class": "logging.StreamHandler",
-    #     "stream": "ext://sys.stderr",
-    # },
-    # "access": {
-    #     "formatter": "access",
-    #     "class": "logging.StreamHandler",
-    #     "stream": "ext://sys.stdout",
-    # },
     config = Config(
         app=app,
         host=HOST,
@@ -90,7 +80,4 @@ async def api_run(loop: BaseEventLoop):
         log_config=logging_config
     )
     server = Server(config)
-
-    uvicorn_logger = getLogger("uvicorn")
-    print(uvicorn_logger.handlers)
     await server.serve()

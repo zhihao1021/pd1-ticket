@@ -1,0 +1,15 @@
+#uploadPage {
+    .uploadBlock,
+    .ticketBlock {
+        opacity: 100%;
+        pointer-events: initial;
+    }
+}
+
+#uploadPage.showExplorer {
+    .uploadBlock,
+    .ticketBlock {
+        opacity: 0%;
+        pointer-events: none;
+    }
+}

@@ -3,6 +3,7 @@
     .ticketBlock {
         opacity: 100%;
         pointer-events: initial;
+        transition: opacity 0.5s;
     }
 }
 

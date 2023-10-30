@@ -92,7 +92,7 @@ export default class SSHExplorer extends React.Component<propsType, stateType> {
         const {selectedFile} = this.state;
         if (selectedFile === "") {
             this.setState({
-                message: "未選擇檔案"
+                message: "No selected file"
             });
             return;
         }
@@ -118,7 +118,7 @@ export default class SSHExplorer extends React.Component<propsType, stateType> {
         }).catch((error) => {
             console.log(error);
             this.setState({
-                message: `發生錯誤: ${error.response.data.detail}`,
+                message: `Error: ${error.response.data.detail}`,
                 selectedFile: ""
             });
         }).finally(() => {
@@ -163,10 +163,10 @@ export default class SSHExplorer extends React.Component<propsType, stateType> {
                         </div>
                     </div>
                     <div className="buttonBar">
-                        <div className="path">選擇檔案: <span>{selectedFile}</span></div>
+                        <div className="path">File: <span>{selectedFile}</span></div>
                         <div className="message">{message}</div>
-                        <button className="upload" onClick={this.sendPullRequest}>上傳</button>
-                        <button className="cancel" onClick={() => {switchExplorer(false)}}>取消</button>
+                        <button className="upload" onClick={this.sendPullRequest}>Pull</button>
+                        <button className="cancel" onClick={() => {switchExplorer(false)}}>Cancel</button>
                     </div>
                 </div>
             </div>

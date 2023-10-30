@@ -194,7 +194,7 @@ export default class CodePage extends React.Component<propsType, stateType> {
                         </div>
                         {
                             code === null? 
-                            <div className="emptyBox">載入資料錯誤</div> :
+                            <div className="emptyBox">File Not Found</div> :
                             <pre>
                                 <code>
                                     {code}

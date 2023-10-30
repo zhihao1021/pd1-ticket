@@ -16,7 +16,7 @@ export default function TicketBlock(props: propsType): React.ReactElement {
                 <div className="scrollBlock">
                     {childrenLength === 0 ?
                         <div className="emptyBox">
-                            目前還沒有Ticket
+                            There is no ticket yet.
                         </div> : children
                     }
                 </div>

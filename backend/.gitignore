@@ -163,3 +163,5 @@ config.json
 data/
 data.sqlite
 logs/
+test*
+announcement.json

@@ -166,8 +166,8 @@ export default class CodePage extends React.Component<propsType, stateType> {
                 >{"< Last Page"}</div>
                 <div className="data block">
                     <h2>Info</h2>
-                    <InfoBox title="上傳時間" context={fileDateTime ?? ""} />
-                    <InfoBox title="檔案名稱" context={fileName ?? ""} />
+                    <InfoBox title="Upload Time" context={fileDateTime ?? ""} />
+                    <InfoBox title="File Name" context={fileName ?? ""} />
                     <InfoBox title="Ticket ID" className="ticketId" context={decodeURI(hash ?? "")} />
                 </div>
                 <div className="code block">

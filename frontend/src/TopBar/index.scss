@@ -1,0 +1,122 @@
+#topBar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: calc(100% - 2vw);
+    height: calc(100% - 2vh);
+    padding: 1vh 1vw;
+    user-select: none;
+    z-index: 2;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    pointer-events: none;
+    .username {
+        color: #666;
+        font-size: 1rem;
+        padding: 0.5rem 1rem;
+    }
+    button {
+        font-size: 1rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        opacity: 25%;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0.1rem 0.1rem 0.2rem 0.1rem #0008;
+        color: #000;
+        pointer-events: initial;
+        transition: opacity 0.3s;
+    }
+    button:hover {
+        opacity: 100%;
+    }
+    .logoutButton {
+        background-color: #999;
+    }
+    .anncButton {
+        background-color: #966;
+    }
+    div.announcement {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background-color: #2228;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0%;
+        pointer-events: none;
+        transition: opacity 0.5s;
+        .block {
+            background-color: #FFF;
+            padding: 1rem;
+            border-radius: 1rem;
+            height: 80vh;
+            width: 60vw;
+            ul {
+                margin: 0;
+                padding: 1rem;
+                padding-left: 3rem;
+                border-radius: 0.5rem;
+                font-size: 1.25rem;
+                height: calc(100% - 5.5rem);
+                margin-bottom: 0.5rem;
+                background-color: black;
+                font-family: monospace;
+                white-space: pre-line;
+                overflow-y: auto;
+                li {
+                    margin: 0.5em 0;
+                    line-height: 1.75em;
+                    color: #FFF;
+                    cursor: pointer;
+                    transition: color 0.5s;
+                }
+                li:hover {
+                    color: #F82;
+                }
+                li:first-child {
+                    margin-top: 0;
+                }
+                li:last-child {
+                    margin-bottom: 0;
+                }
+            }
+            .buttonBar {
+                display: flex;
+                // justify-content: center;
+                align-items: center;
+                height: 3rem;
+                gap: 1rem;
+                button {
+                    width: 5rem;
+                    margin-left: calc(50% - 3.5rem);
+                    background-color: #D44;
+                    color: #FFF;
+                    opacity: 100%;
+                    transition: background-color 0.5s;
+                }
+                button:hover {
+                    background-color: #F66;
+                }
+                label {
+                    cursor: pointer;
+                    height: 3rem;
+                    line-height: 3rem;
+                }
+            }
+        }
+    }
+    div.announcement.show {
+        opacity: 100%;
+        pointer-events: initial;
+    }
+}
+
+#topBar:not(.show) {
+    display: none;
+}

@@ -36,3 +36,14 @@ if not isdir(DATA_DIR):
     makedirs(DATA_DIR)
 if not isdir("logs"):
     makedirs("logs")
+if not isfile("announcement.json"):
+    with open("announcement.json", "wb") as announce_file:
+        announce_file.write(dumps({
+            "readonly": [
+                "請不要嘗試攻擊網站。\nPlease do not try to attack the website.",
+                "原則上不限制上傳檔案數，單個檔案上限32KB。\nThere is no limit with file num, but maximum 32 KB per file.",
+                "上傳的檔案在下個禮拜四前皆只有你自己與助教可以存取，可以安心將連結傳至公共頻道。\nThe file you uploaded can only be access by you and TA before next thursday. Therefore, you can send the link to public channel safely.",
+                "若有任何問題請在Discord私訊我: zhihao1021。\nIf there are any problems or bugs, DM me on discord: zhihao1021(nickname: YEE)."
+            ],
+            "data": [],
+        }, option=OPT_INDENT_2))

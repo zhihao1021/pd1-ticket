@@ -1,6 +1,7 @@
 import React from "react";
 import jwtDecode from "jwt-decode";
 
+import TopBar from "./TopBar";
 import Loading from "./Loading";
 import LoginPage from "./LoginPage";
 import CodePage from "./CodePage";
@@ -112,18 +113,6 @@ export default class App extends React.Component<propsType, stateType> {
 		} = this.state;
 		return (
 			<div id="app">
-				{
-					login ?
-					<div className="logoutBlock">
-						<div className="username">
-							{username}
-						</div>
-						<div
-							className="logoutButton"
-							onClick={this.logout}
-						>Logout</div>
-					</div> : null
-				}
 				<Loading
 					show={loading}
 					/>
@@ -131,6 +120,11 @@ export default class App extends React.Component<propsType, stateType> {
 					show={!login}
 					checkLogin={this.checkLogin}
 					switchLoading={this.switchLoading}
+				/>
+				<TopBar
+					show={login}
+					username={username}
+					logout={this.logout}
 				/>
 				<UploadPage
 					login={login}

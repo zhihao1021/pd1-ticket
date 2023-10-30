@@ -6,11 +6,11 @@ from uvicorn.config import LOGGING_CONFIG
 from asyncio import BaseEventLoop
 from copy import deepcopy
 from datetime import datetime
-from logging import FileHandler, getLogger, INFO
 
 from config import API_ROOT_PATH, HOST, PORT
 
 from .routers import (
+    announce_router,
     ticket_router,
     pull_router,
     oauth_router,
@@ -28,11 +28,12 @@ origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+app.include_router(announce_router)
 app.include_router(oauth_router)
 app.include_router(pull_router)
 app.include_router(ticket_router)

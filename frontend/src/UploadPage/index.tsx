@@ -88,7 +88,7 @@ export default class UploadPage extends React.Component<propsType, stateType> {
         // 檢查是否有選擇檔案
         const file = this.state.selectedFile;
         if (file === null) {
-            this.setState({uploadMessage: "未選擇檔案"});
+            this.setState({uploadMessage: "No selected file."});
             return;
         }
         // 顯示載入畫面
@@ -110,7 +110,7 @@ export default class UploadPage extends React.Component<propsType, stateType> {
             window.location.hash = response.data;
         }).catch((error) => {
             this.setState({
-                uploadMessage: `發生錯誤: ${error.response.data.detail}`,
+                uploadMessage: `Error: ${error.response.data.detail}`,
                 selectedFile: null
             });
         }).finally(() => {
@@ -161,7 +161,7 @@ export default class UploadPage extends React.Component<propsType, stateType> {
             })
         }).catch(() => {
             this.getAllTickets();
-            alert("發生錯誤")
+            alert("Error")
         }).finally(() => {
             // 關閉載入畫面
             this.props.switchLoading(false);

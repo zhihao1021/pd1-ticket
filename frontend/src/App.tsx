@@ -15,7 +15,8 @@ type stateType = Readonly<{
 	showPage: number,
 	loading: boolean,
 	login: boolean,
-	username: string
+	username: string,
+	readedAnnc: boolean,
 }>;
 
 export default class App extends React.Component<propsType, stateType> {
@@ -29,13 +30,15 @@ export default class App extends React.Component<propsType, stateType> {
 			login: localStorage.getItem("access_token") !== null &&
 				localStorage.getItem("token_type") !== null,
 			username: "",
+			readedAnnc: false,
 		};
 
 		this.getHash = this.getHash.bind(this);
-		this.switchPage = this.switchPage.bind(this);
-		this.switchLoading = this.switchLoading.bind(this);
 		this.checkLogin = this.checkLogin.bind(this);
 		this.logout = this.logout.bind(this);
+		this.readAnnc = this.readAnnc.bind(this);
+		this.switchPage = this.switchPage.bind(this);
+		this.switchLoading = this.switchLoading.bind(this);
 
 		window.addEventListener("hashchange", this.getHash);
 	}
@@ -90,6 +93,12 @@ export default class App extends React.Component<propsType, stateType> {
 		this.checkLogin();
 	}
 
+	readAnnc() {
+		this.setState({
+			readedAnnc: true,
+		});
+	}
+
 	switchPage(page: number): void {
 		if (page === this.state.showPage) return;
 		this.setState({showPage: page});
@@ -109,7 +118,8 @@ export default class App extends React.Component<propsType, stateType> {
 			showPage,
 			loading,
 			login,
-			username
+			username,
+			readedAnnc
 		} = this.state;
 		return (
 			<div id="app">
@@ -125,18 +135,23 @@ export default class App extends React.Component<propsType, stateType> {
 					show={login}
 					username={username}
 					logout={this.logout}
+					readAnnc={this.readAnnc}
 				/>
-				<UploadPage
-					login={login}
-					show={showPage === 0}
-					switchLoading={this.switchLoading}
-				/>
-				<CodePage
-					login={login}
-					show={showPage === 1}
-					hash={hash}
-					switchLoading={this.switchLoading}
-				/>
+				{ readedAnnc ? 
+					<UploadPage
+						login={login}
+						show={showPage === 0}
+						switchLoading={this.switchLoading}
+					/> : null
+				}
+				{ readedAnnc ?
+					<CodePage
+						login={login}
+						show={showPage === 1}
+						hash={hash}
+						switchLoading={this.switchLoading}
+					/> : null
+				}
 			</div>
 		);
 	}

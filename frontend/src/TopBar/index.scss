@@ -28,6 +28,7 @@
         color: #000;
         pointer-events: initial;
         transition: opacity 0.3s;
+        text-align: center;
     }
     button:hover {
         opacity: 100%;
@@ -93,15 +94,20 @@
                 height: 3rem;
                 gap: 1rem;
                 button {
-                    width: 5rem;
-                    margin-left: calc(50% - 3.5rem);
+                    width: 7rem;
+                    margin-left: calc(50% - 4.5rem);
+                    padding-left: 0;
+                    padding-right: 0;
                     background-color: #D44;
                     color: #FFF;
                     opacity: 100%;
                     transition: background-color 0.5s;
                 }
-                button:hover {
+                button:not(:disabled):hover {
                     background-color: #F66;
+                }
+                button:disabled {
+                    background-color: #6666;
                 }
                 label {
                     cursor: pointer;

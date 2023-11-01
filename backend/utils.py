@@ -1,4 +1,5 @@
 from asyncssh import connect, SSHClientConnection, SSHClientConnectionOptions
+from fastapi import Request
 
 from datetime import datetime, timedelta
 
@@ -40,3 +41,14 @@ def check_ticket_authorized(
         pass_authorize = pass_authorize or ticket_id.startswith(f"{user_hash}-")
     
     return pass_authorize
+
+def get_ip(request: Request):
+    header = request.headers
+    try:
+        forward_list = header.get("x-forwarded-for")
+        result = forward_list.split(",")[0].strip()
+        if result.count(".") != 4:
+            return request.client.host
+        return result
+    except:
+        return request.client.host

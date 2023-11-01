@@ -9,7 +9,7 @@ from os.path import join
 
 from config import DATA_DIR
 from schemas.user import User
-from utils import check_ticket_authorized
+from utils import check_ticket_authorized, get_ip
 
 from ..depends import user_depends
 from ..validator import get_user
@@ -50,11 +50,10 @@ route = APIRouter(
     status_code=status.HTTP_200_OK,
 )
 async def get_all_ticket(
-    requests: Request,
+    request: Request,
     user: User=user_depends,
 ) -> list[str]:
-    print(requests.headers)
-    LOGGER.info(f"User: {user.username}, RemoteIP: {requests.client.host}")
+    LOGGER.info(f"User: {user.username}, RemoteIP: {get_ip(request)}")
     if user.admin:
         return listdir(DATA_DIR)
     
@@ -92,11 +91,11 @@ async def add_ticket(
     status_code=status.HTTP_200_OK
 )
 async def get_ticket(
-    requests: Request,
+    request: Request,
     ticket_id: str,
     user: User = user_depends
 ):
-    LOGGER.info(f"User: {user.username}, RemoteIP: {requests.client.host}, AccessTicket: {ticket_id}")
+    LOGGER.info(f"User: {user.username}, RemoteIP: {get_ip(request)}, AccessTicket: {ticket_id}")
     return await __get_ticket(user, ticket_id)
 
 @route.get(
@@ -104,9 +103,11 @@ async def get_ticket(
     status_code=status.HTTP_200_OK
 )
 async def get_ticket_download(
+    request: Request,
     ticket_id: str,
     token: str
 ):
+    LOGGER.info(f"User: {user.username}, RemoteIP: {get_ip(request)}, DownloadTicket: {ticket_id}")
     user: User = await get_user(token)
     return await __get_ticket(user, ticket_id)
 

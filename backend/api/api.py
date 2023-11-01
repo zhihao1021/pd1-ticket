@@ -69,6 +69,8 @@ async def api_run(loop: BaseEventLoop):
         }
     }
     logging_config["formatters"].update(formatters_config)
+    logging_config["formatters"]["default"]["fmt"] = "%(levelprefix)s [%(asctime)s] %(message)s"
+    logging_config["formatters"]["access"]["fmt"] = '%(levelprefix)s [%(asctime)s] %(client_addr)s - "%(request_line)s" %(status_code)s'
     logging_config["handlers"].update(handlers_config)
     logging_config["loggers"]["uvicorn"]["handlers"].append("default_file")
     logging_config["loggers"]["uvicorn.access"]["handlers"].append("access_file")

@@ -47,7 +47,7 @@ def get_ip(request: Request):
     try:
         forward_list = header.get("x-forwarded-for")
         result = forward_list.split(",")[0].strip()
-        if result.count(".") != 4:
+        if result.count(".") != 3:
             return request.client.host
         return result
     except:

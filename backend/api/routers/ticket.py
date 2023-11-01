@@ -107,8 +107,8 @@ async def get_ticket_download(
     ticket_id: str,
     token: str
 ):
-    LOGGER.info(f"User: {user.username}, RemoteIP: {get_ip(request)}, DownloadTicket: {ticket_id}")
     user: User = await get_user(token)
+    LOGGER.info(f"User: {user.username}, RemoteIP: {get_ip(request)}, DownloadTicket: {ticket_id}")
     return await __get_ticket(user, ticket_id)
 
 @route.delete(

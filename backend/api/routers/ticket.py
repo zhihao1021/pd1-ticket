@@ -53,6 +53,7 @@ async def get_all_ticket(
     requests: Request,
     user: User=user_depends,
 ) -> list[str]:
+    print(requests.headers)
     LOGGER.info(f"User: {user.username}, RemoteIP: {requests.client.host}")
     if user.admin:
         return listdir(DATA_DIR)

@@ -103,7 +103,7 @@ export default class TopBar extends React.Component<propsType, stateType> {
             return;
         };
 
-        if (Math.abs(Element.scrollHeight - (Element.scrollTop + Element.clientHeight)) < 1) {
+        if (Math.abs(Element.scrollHeight - (Element.scrollTop + Element.clientHeight)) < 3) {
             this.startCountDown();
             this.setState({
                 onScroll: undefined

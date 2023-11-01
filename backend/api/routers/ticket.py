@@ -1,8 +1,9 @@
 from aiofile import async_open
-from fastapi import APIRouter, status, UploadFile
+from fastapi import APIRouter, Request, status, UploadFile
 from fastapi.responses import FileResponse
 
 from datetime import datetime
+from logging import getLogger
 from os import listdir, remove
 from os.path import join
 
@@ -13,6 +14,8 @@ from utils import check_ticket_authorized
 from ..depends import user_depends
 from ..validator import get_user
 from ..exceptions import FILE_OVERSIZE, PERMISSION_DENIED
+
+LOGGER = getLogger("uvicorn")
 
 async def __get_ticket(user: User, ticket_id: str):
     try:
@@ -47,8 +50,10 @@ route = APIRouter(
     status_code=status.HTTP_200_OK,
 )
 async def get_all_ticket(
+    requests: Request,
     user: User=user_depends,
 ) -> list[str]:
+    LOGGER.info(f"User: {user.username}, RemoteIP: {requests.client.host}")
     if user.admin:
         return listdir(DATA_DIR)
     
@@ -86,9 +91,11 @@ async def add_ticket(
     status_code=status.HTTP_200_OK
 )
 async def get_ticket(
+    requests: Request,
     ticket_id: str,
     user: User = user_depends
 ):
+    LOGGER.info(f"User: {user.username}, RemoteIP: {requests.client.host}, AccessTicket: {ticket_id}")
     return await __get_ticket(user, ticket_id)
 
 @route.get(

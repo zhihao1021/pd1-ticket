@@ -45,12 +45,12 @@ async def api_run(loop: BaseEventLoop):
     formatters_config = {
         "default_nocolor": {
             "()": "uvicorn.logging.DefaultFormatter",
-            "fmt": "%(levelprefix)s %(message)s",
+            "fmt": "%(levelprefix)s [%(asctime)s] %(message)s",
             "use_colors": False,
         },
         "access_nocolor": {
             "()": "uvicorn.logging.AccessFormatter",
-            "fmt": '%(levelprefix)s %(client_addr)s - "%(request_line)s" %(status_code)s',
+            "fmt": '%(levelprefix)s [%(asctime)s] %(client_addr)s - "%(request_line)s" %(status_code)s',
             "use_colors": False,
         }
     }

@@ -22,7 +22,7 @@
     a.name:hover {
         text-decoration: underline;
     }
-    a.download,
+    div.download,
     div.delete {
         height: 2.4rem;
         line-height: 2.4rem;
@@ -31,16 +31,16 @@
         text-align: center;
         transition: background-color 0.5s;
     }
-    div.delete {
+    .delete {
         background-color: #B11;
     }
-    div.delete:hover {
+    .delete:hover {
         background-color: #F55;
     }
-    a.download {
+    .download {
         background-color: #C61;
     }
-    a.download:hover {
+    .download:hover {
         background-color: #FA5;
     }
 }

@@ -148,7 +148,7 @@ export default class App extends React.Component<propsType, stateType> {
 					<CodePage
 						login={login}
 						show={showPage === 1}
-						hash={hash}
+						hash={decodeURI(hash ?? "")}
 						switchLoading={this.switchLoading}
 					/> : null
 				}

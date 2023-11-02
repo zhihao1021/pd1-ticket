@@ -4,20 +4,22 @@ import React from "react";
 import InfoBox from "./InfoBox";
 
 import { apiEndPoint } from "../config";
+import { downloadBlob } from "../utils";
 
 import "./index.scss";
 
 type propsType = Readonly<{
     login: boolean,
     show: boolean,
-    hash: string | null,
+    hash: string,
     switchLoading: (status?: boolean) => void,
 }>;
 type stateType = Readonly<{
     code: string | null,
     buttonMessage: string,
-    dirPath: string,
-    filename: string,
+    uploadDirPath: string,
+    uploadFileName: string,
+    fileName: string,
 }>;
 
 export default class CodePage extends React.Component<propsType, stateType> {
@@ -29,8 +31,9 @@ export default class CodePage extends React.Component<propsType, stateType> {
         this.state = {
             code: null,
             buttonMessage: "",
-            dirPath: "",
-            filename: "",
+            uploadDirPath: "",
+            uploadFileName: "",
+            fileName: "",
         };
 
         this.copyLink = () => {
@@ -51,6 +54,7 @@ export default class CodePage extends React.Component<propsType, stateType> {
         this.copyLink = this.copyLink.bind(this);
         this.copyCode = this.copyCode.bind(this);
         this.uploadTicket = this.uploadTicket.bind(this);
+        this.downCurrentTicket = this.downCurrentTicket.bind(this);
     }
 
     componentDidMount(): void {
@@ -89,8 +93,10 @@ export default class CodePage extends React.Component<propsType, stateType> {
         axios.get(
             `${apiEndPoint}/ticket/${hash}`,
         ).then((response) => {
+            const filePrefix = `${hash.split("-", 2).join("-")}-`;
             this.setState({
-                code: response.data
+                code: response.data,
+                fileName: hash.replace(filePrefix, ""),
             });
         }).catch(() => {
             this.setState({
@@ -107,16 +113,16 @@ export default class CodePage extends React.Component<propsType, stateType> {
             return;
         }
         const {
-            dirPath,
-            filename
+            uploadDirPath,
+            uploadFileName
         } = this.state;
         this.props.switchLoading(true);
         axios.postForm(
             `${apiEndPoint}/upload`,
             {
-                ticket_id: decodeURI(hash),
-                dir_path: dirPath,
-                filename: filename
+                ticket_id: hash,
+                dir_path: uploadDirPath,
+                filename: uploadFileName
             }
         ).then((response) => {
             this.setState({buttonMessage: `上傳成功: ~/${response.data}`,});
@@ -139,6 +145,21 @@ export default class CodePage extends React.Component<propsType, stateType> {
         });
     }
 
+    downCurrentTicket() {
+        const {
+            code,
+            fileName
+        } = this.state;
+        if (code !== null) {
+            if (downloadBlob(new File([code], fileName), fileName)) {
+                this.setState({buttonMessage: `下載程式碼成功`,});
+                return;
+            }
+        }
+        this.setState({buttonMessage: `下載程式碼失敗`,});
+        return;
+    }
+
     render(): React.ReactNode {
         const {
             login,
@@ -148,16 +169,15 @@ export default class CodePage extends React.Component<propsType, stateType> {
         const {
             code,
             buttonMessage,
-            dirPath,
-            filename
+            uploadDirPath,
+            uploadFileName,
+            fileName
         } = this.state;
-        const token = localStorage.getItem("access_token");
 
         let fileDateTime = hash?.split("-", 2)[1];
         fileDateTime = fileDateTime?.replace(
             "T", " "
         ).replaceAll("_", "/").replaceAll(".", ":");
-        const fileName = decodeURI(hash?.split("-", 3)[2] ?? "");
         return (
             <div id="codePage" className={show && login ? "page show" : "page"}>
                 <div
@@ -168,7 +188,7 @@ export default class CodePage extends React.Component<propsType, stateType> {
                     <h2>Info</h2>
                     <InfoBox title="Upload Time" context={fileDateTime ?? ""} />
                     <InfoBox title="File Name" context={fileName ?? ""} />
-                    <InfoBox title="Ticket ID" className="ticketId" context={decodeURI(hash ?? "")} />
+                    <InfoBox title="Ticket ID" className="ticketId" context={hash} />
                 </div>
                 <div className="code block">
                     <h2>Code Preview</h2>
@@ -176,19 +196,20 @@ export default class CodePage extends React.Component<propsType, stateType> {
                         <div className="buttonBar">
                             <div className="copyLink" onClick={this.copyLink}>Copy Link</div>
                             <div className="copyCode" onClick={this.copyCode}>Copy Code</div>
-                            <a className="download" href={`${apiEndPoint}/ticket/download/${hash}?token=${token}`}>Download</a>
+                            <div className="download" onClick={this.downCurrentTicket}>Download</div>
+                            {/* <a className="download" href={`${apiEndPoint}/ticket/download/${hash}?token=${token}`}>Download</a> */}
                             <div className="message">{buttonMessage}</div>
                             <input
                                 className="path"
                                 placeholder="Path"
-                                value={dirPath}
-                                onChange={this.onInputChange("dirPath")}
+                                value={uploadDirPath}
+                                onChange={this.onInputChange("uploadDirPath")}
                             />
                             <input
                                 className="filename"
                                 placeholder="Filename"
-                                value={filename}
-                                onChange={this.onInputChange("filename")}
+                                value={uploadFileName}
+                                onChange={this.onInputChange("uploadFileName")}
                             />
                             <div className="upload" onClick={this.uploadTicket}>Upload</div>
                         </div>

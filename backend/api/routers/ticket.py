@@ -98,19 +98,6 @@ async def get_ticket(
     LOGGER.info(f"User: {user.username}, RemoteIP: {get_ip(request)}, AccessTicket: {ticket_id}")
     return await __get_ticket(user, ticket_id)
 
-@route.get(
-    path="/download/{ticket_id}",
-    status_code=status.HTTP_200_OK
-)
-async def get_ticket_download(
-    request: Request,
-    ticket_id: str,
-    token: str
-):
-    user: User = await get_user(token)
-    LOGGER.info(f"User: {user.username}, RemoteIP: {get_ip(request)}, DownloadTicket: {ticket_id}")
-    return await __get_ticket(user, ticket_id)
-
 @route.delete(
     path="/{ticket_id}",
     status_code=status.HTTP_204_NO_CONTENT

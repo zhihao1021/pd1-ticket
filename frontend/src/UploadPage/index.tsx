@@ -199,7 +199,12 @@ export default class UploadPage extends React.Component<propsType, stateType> {
                 />
                 <TicketBlock>
                     {tickets.map((ticketId, index) => 
-                        <TicketBox key={index} deleteTicket={this.deleteTicket} ticketId={ticketId}></TicketBox>
+                        <TicketBox
+                            key={index}
+                            ticketId={ticketId}
+                            deleteTicket={this.deleteTicket}
+                            switchLoading={switchLoading}
+                        ></TicketBox>
                     )}
                 </TicketBlock>
                 <SSHExplorer

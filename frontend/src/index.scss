@@ -15,6 +15,11 @@
 body {
   margin: 0;
   overflow: hidden;
+  > #downloadATagUnderBody {
+    display: none;
+    pointer-events: none;
+    user-select: none;
+  }
 }
 
 .ms-o {

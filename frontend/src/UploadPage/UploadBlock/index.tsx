@@ -19,11 +19,11 @@ export default function UploadBlock(props: propsType): React.ReactElement {
         uploadMessage
     } = props;
     return (
-        <div className="uploadBlock block">
+        <div className="uploadBlock block buttonBar">
             <h2>Upload File</h2>
             <div className="server button" onClick={() => {switchExplorer(true)}}>Pull File</div>
             <label className="uploadButton">
-                <div className="button">Select File</div>
+                <div className="button selectFile">Select File</div>
                 <input
                     type="file"
                     onChange={selectFile}
@@ -32,7 +32,7 @@ export default function UploadBlock(props: propsType): React.ReactElement {
             </label>
             <div className="filename">{selectedFile?.name ?? "No selected file"}</div>
             <div className="message">{uploadMessage}</div>
-            <div className="submit button" onClick={sendFile}>Upload</div>
+            <div className="submit button" onClick={sendFile}>Submit</div>
         </div>
     );
 }

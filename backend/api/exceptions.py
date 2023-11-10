@@ -5,9 +5,19 @@ FILE_OVERSIZE = HTTPException(
     detail="File size is over 32KB",
 )
 
+DOWNLOAD_OVERSIZE = HTTPException(
+    status_code=status.HTTP_400_BAD_REQUEST,
+    detail="File size is over 32MB",
+)
+
 UNKNOW_ERROR = HTTPException(
     status_code=status.HTTP_400_BAD_REQUEST,
     detail="Unknow Error",
+)
+
+UNKNOW_COMMAND = HTTPException(
+    status_code=status.HTTP_400_BAD_REQUEST,
+    detail="Unknow Command",
 )
 
 UNAUTHORIZE = HTTPException(

@@ -1,8 +1,10 @@
+import axios from "axios";
 import React from "react";
+
 import { apiEndPoint } from "../../config";
+import { downloadBlob } from "../../utils";
 
 import "./index.scss";
-import axios from "axios";
 
 type propsType = Readonly<{
     show: boolean,
@@ -88,7 +90,7 @@ export default class SSHExplorer extends React.Component<propsType, stateType> {
         })
     }
 
-    sendPullRequest() {
+    sendPullRequest(download: boolean) {
         const {selectedFile} = this.state;
         if (selectedFile === "") {
             this.setState({
@@ -101,6 +103,9 @@ export default class SSHExplorer extends React.Component<propsType, stateType> {
         this.props.switchLoading(true);
         const formData = new FormData();
         formData.append("path", selectedFile);
+        if (download) {
+            formData.append("download", "true");
+        }
 
         axios.post(
             `${apiEndPoint}/pull`,
@@ -111,10 +116,17 @@ export default class SSHExplorer extends React.Component<propsType, stateType> {
                 message: "",
                 selectedFile: "",
             });
-            // 更新列表
-            this.props.unshiftTicket(response.data);
-            this.props.switchExplorer(false);
-            window.location.hash = response.data;
+            if (download) {
+                const filenameList = selectedFile.split("/");
+                const filename = filenameList[filenameList.length - 1];
+                downloadBlob(new Blob([response.data]), filename);
+            }
+            else {
+                // 更新列表
+                this.props.unshiftTicket(response.data);
+                this.props.switchExplorer(false);
+                window.location.hash = response.data;
+            }
         }).catch((error) => {
             console.log(error);
             this.setState({
@@ -149,7 +161,11 @@ export default class SSHExplorer extends React.Component<propsType, stateType> {
                             {
                                 directory.map((name, index) => <div key={index}>
                                     <span className="ms-o">folder_open</span>
-                                    <span className="text" onClick={() => {this.wsEnterFolder(name)}}>{name}</span>
+                                    <span
+                                        className="text"
+                                        onClick={() => {this.wsEnterFolder(name)}}
+                                        title={name}
+                                    >{name}</span>
                                 </div>)
                             }
                         </div>
@@ -157,7 +173,11 @@ export default class SSHExplorer extends React.Component<propsType, stateType> {
                             {
                                 files.map((name, index) => <div key={index}>
                                     <span className="ms-o">draft</span>
-                                    <span className="text" onClick={() => {this.selectFile(name)}}>{name}</span>
+                                    <span
+                                        className="text"
+                                        onClick={() => {this.selectFile(name)}}
+                                        title={name}
+                                    >{name}</span>
                                 </div>)
                             }
                         </div>
@@ -165,7 +185,8 @@ export default class SSHExplorer extends React.Component<propsType, stateType> {
                     <div className="buttonBar">
                         <div className="path">File: <span>{selectedFile}</span></div>
                         <div className="message">{message}</div>
-                        <button className="upload" onClick={this.sendPullRequest}>Pull</button>
+                        <button className="pull" onClick={() => {this.sendPullRequest(false)}}>Pull</button>
+                        <button className="download" onClick={() => {this.sendPullRequest(true)}}>Download</button>
                         <button className="cancel" onClick={() => {switchExplorer(false)}}>Cancel</button>
                     </div>
                 </div>

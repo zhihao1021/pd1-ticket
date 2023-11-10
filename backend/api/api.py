@@ -11,6 +11,7 @@ from config import API_ROOT_PATH, HOST, PORT
 
 from .routers import (
     announce_router,
+    judge_router,
     ticket_router,
     pull_router,
     oauth_router,
@@ -34,6 +35,7 @@ app.add_middleware(
 )
 
 app.include_router(announce_router)
+app.include_router(judge_router)
 app.include_router(oauth_router)
 app.include_router(pull_router)
 app.include_router(ticket_router)

@@ -1,0 +1,30 @@
+#judgeBox {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: #222;
+    z-index: 2;
+    .block {
+        .secBlock {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            pre {
+                border-top-left-radius: 1.2rem;
+                margin: 0;
+                overflow: auto;
+                background-color: #000;
+                padding: 1.2rem;
+                code {
+                    * {
+                        font-family: monospace;
+                    }
+                    font-size: 1.2rem;
+                    font-family: monospace;
+                }
+            }
+        }
+    }
+}

@@ -1,10 +1,13 @@
 import axios from "axios";
 import React from "react";
 
+import Selection from "../Selection";
+
 import InfoBox from "./InfoBox";
+import JudgeBox from "./JudgeBox";
+import CodeBox from "./CodeBox";
 
 import { apiEndPoint } from "../config";
-import { downloadBlob } from "../utils";
 
 import "./index.scss";
 
@@ -16,62 +19,79 @@ type propsType = Readonly<{
 }>;
 type stateType = Readonly<{
     code: string | null,
-    buttonMessage: string,
+    message: string,
     uploadDirPath: string,
     uploadFileName: string,
     fileName: string,
+    showJudge: boolean,
+    judgeContext: string,
+    judgeOption: number,
+    judgeList: Array<string>
 }>;
 
 export default class CodePage extends React.Component<propsType, stateType> {
-    copyLink: () => void;
-    copyCode: () => void;
     constructor(props: propsType) {
         super(props);
 
         this.state = {
             code: null,
-            buttonMessage: "",
+            message: "",
             uploadDirPath: "",
             uploadFileName: "",
             fileName: "",
+            showJudge: false,
+            judgeContext: "",
+            judgeOption: 0,
+            judgeList: [],
         };
 
-        this.copyLink = () => {
-            if (this.props.hash === null) {
-                this.setState({buttonMessage: `複製連結失敗`});
-                return;
-            }
-            this.copy(window.location.href, "連結");
-        }
-        this.copyCode = () => {
-            const code = this.state.code;
-            if (code === null) {
-                this.setState({buttonMessage: `複製程式碼失敗`});
-                return;
-            }
-            this.copy(code, "程式碼");
-        }
-        this.copyLink = this.copyLink.bind(this);
-        this.copyCode = this.copyCode.bind(this);
-        this.uploadTicket = this.uploadTicket.bind(this);
-        this.downCurrentTicket = this.downCurrentTicket.bind(this);
+        this.judge = this.judge.bind(this);
+        this.switchJudge = this.switchJudge.bind(this);
+        this.changeJudgeOption = this.changeJudgeOption.bind(this);
     }
 
     componentDidMount(): void {
         if (this.props.login) {
-            this.getTicket(this.props.hash);
+            this.getTicket();
         }
+        this.getJudgeOptions();
     }
 
     componentDidUpdate(prevProps: propsType, prevState: stateType): void {
-        if (this.props.login && !prevProps.login) {
-            this.getTicket(this.props.hash);
-            return;
+        const {
+            hash,
+            login
+        } = this.props;
+        const prevHash = prevProps.hash;
+        const prevLogin = prevProps.login;
+        if (hash === null || hash === "") {
+            if (this.state.showJudge === true || this.state.judgeContext !== "") {
+                this.setState({
+                    showJudge: false,
+                    judgeContext: ""
+                })
+            }
         }
-        else if (this.props.hash === null || this.props.hash === prevProps.hash) {
-            return;
+        else if (hash !== prevHash || (login && !prevLogin)) {
+            this.setState({
+                message: "",
+                showJudge: false,
+                judgeContext: ""
+            })
+            this.getTicket();
         }
-        this.getTicket(this.props.hash);
+    }
+
+    switchJudge(status?: boolean) {
+        this.setState((state)=> {
+            return {
+                showJudge: status === undefined ? !state.showJudge : status
+            };
+        });
+    }
+
+    changeJudgeOption(value: number) {
+        this.setState({judgeOption: value});
     }
 
     onInputChange(field: string) {
@@ -79,7 +99,7 @@ export default class CodePage extends React.Component<propsType, stateType> {
             let target = ev.target as HTMLInputElement;
             let value = target.value;
             this.setState((state) => {
-                let newState = state as {[key: string]: string};
+                let newState = state as {[key: string]: any};
                 newState[field] = value;
                 return newState as stateType;
             });
@@ -87,7 +107,20 @@ export default class CodePage extends React.Component<propsType, stateType> {
         return __func.bind(this);
     }
 
-    getTicket(hash: string | null) {
+    getJudgeOptions() {
+        axios.get(
+            `${apiEndPoint}/judge`
+        ).then(
+            (response) => {
+                this.setState({
+                    judgeList: response.data
+                });
+            }
+        )
+    }
+
+    getTicket() {
+        const {hash} = this.props;
         if (hash === null) return;
         this.props.switchLoading(true);
         axios.get(
@@ -109,9 +142,7 @@ export default class CodePage extends React.Component<propsType, stateType> {
 
     uploadTicket() {
         const {hash} = this.props;
-        if (hash === null) {
-            return;
-        }
+        if (hash === null) return;
         const {
             uploadDirPath,
             uploadFileName
@@ -125,39 +156,43 @@ export default class CodePage extends React.Component<propsType, stateType> {
                 filename: uploadFileName
             }
         ).then((response) => {
-            this.setState({buttonMessage: `上傳成功: ~/${response.data}`,});
+            this.setState({message: `上傳成功: ~/${response.data}`,});
         }).catch(() => {
-            this.setState({buttonMessage: "上傳失敗",});
+            this.setState({message: "上傳失敗",});
         }).finally(() => {
             this.props.switchLoading(false);
         })
     }
 
-    copy(context?: string, name?: string) {
-        if (context === null || context === undefined) {
-            this.setState({buttonMessage: `複製${name}失敗`});
+    judge() {
+        const {hash} = this.props;
+        const {
+            judgeOption,
+            judgeList
+        } = this.state;
+        if (hash === null) return;
+        const command = judgeList[judgeOption];
+        if (command === null) {
+            this.setState({
+                message: "測試失敗"
+            })
             return;
         }
-        navigator.clipboard.writeText(context).then(() => {
-            this.setState({buttonMessage: `複製${name}成功`,});
+        this.props.switchLoading(true);
+        axios.get(
+            `${apiEndPoint}/judge/${hash}?command=${command}`,
+        ).then((response) => {
+            this.setState({
+                judgeContext: response.data,
+                showJudge: true
+            })
         }).catch(() => {
-            this.setState({buttonMessage: `複製${name}失敗`,});
+            this.setState({
+                message: "測試失敗"
+            })
+        }).finally(() => {
+            this.props.switchLoading(false);
         });
-    }
-
-    downCurrentTicket() {
-        const {
-            code,
-            fileName
-        } = this.state;
-        if (code !== null) {
-            if (downloadBlob(new File([code], fileName), fileName)) {
-                this.setState({buttonMessage: `下載程式碼成功`,});
-                return;
-            }
-        }
-        this.setState({buttonMessage: `下載程式碼失敗`,});
-        return;
     }
 
     render(): React.ReactNode {
@@ -168,10 +203,14 @@ export default class CodePage extends React.Component<propsType, stateType> {
         } = this.props;
         const {
             code,
-            buttonMessage,
+            message,
             uploadDirPath,
             uploadFileName,
-            fileName
+            fileName,
+            showJudge,
+            judgeContext,
+            judgeOption,
+            judgeList
         } = this.state;
 
         let fileDateTime = hash?.split("-", 2)[1];
@@ -189,41 +228,40 @@ export default class CodePage extends React.Component<propsType, stateType> {
                     <InfoBox title="Upload Time" context={fileDateTime ?? ""} />
                     <InfoBox title="File Name" context={fileName ?? ""} />
                     <InfoBox title="Ticket ID" className="ticketId" context={hash} />
-                </div>
-                <div className="code block">
-                    <h2>Code Preview</h2>
-                    <div className="secBlock block">
-                        <div className="buttonBar">
-                            <div className="copyLink" onClick={this.copyLink}>Copy Link</div>
-                            <div className="copyCode" onClick={this.copyCode}>Copy Code</div>
-                            <div className="download" onClick={this.downCurrentTicket}>Download</div>
-                            {/* <a className="download" href={`${apiEndPoint}/ticket/download/${hash}?token=${token}`}>Download</a> */}
-                            <div className="message">{buttonMessage}</div>
-                            <input
-                                className="path"
-                                placeholder="Path"
-                                value={uploadDirPath}
-                                onChange={this.onInputChange("uploadDirPath")}
-                            />
-                            <input
-                                className="filename"
-                                placeholder="Filename"
-                                value={uploadFileName}
-                                onChange={this.onInputChange("uploadFileName")}
-                            />
-                            <div className="upload" onClick={this.uploadTicket}>Upload</div>
-                        </div>
-                        {
-                            code === null? 
-                            <div className="emptyBox">File Not Found</div> :
-                            <pre>
-                                <code>
-                                    {code}
-                                </code>
-                            </pre>
-                        }
+                    <div className="buttonBar">
+                        <div className="judge" onClick={this.judge}>Judge</div>
+                        <Selection
+                            value={judgeOption}
+                            options={judgeList}
+                            changeValue={this.changeJudgeOption}
+                            displayRow={3}
+                        />
+                        <div className="message">{message}</div>
+                        <input
+                            className="path"
+                            placeholder="Path"
+                            value={uploadDirPath}
+                            onChange={this.onInputChange("uploadDirPath")}
+                        />
+                        <input
+                            className="filename"
+                            placeholder="Filename"
+                            value={uploadFileName}
+                            onChange={this.onInputChange("uploadFileName")}
+                        />
+                        <div className="upload" onClick={this.uploadTicket}>Upload</div>
                     </div>
                 </div>
+                <CodeBox
+                    hash={hash}
+                    code={code}
+                    fileName={fileName}
+                />
+                <JudgeBox
+                    show={showJudge}
+                    context={judgeContext}
+                    switchJudge={this.switchJudge}
+                 />
             </div>
         )
     }

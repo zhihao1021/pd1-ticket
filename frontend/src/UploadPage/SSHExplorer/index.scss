@@ -1,3 +1,5 @@
+@import "../../buttonBarColor.scss";
+
 #sshExplorer {
     position: absolute;
     top: 0;
@@ -38,7 +40,6 @@
                 gap: 1rem;
                 > div {
                     width: calc(25% - 3rem / 4);
-                    text-overflow: ellipsis;
                     overflow: hidden;
                     display: flex;
                     gap: 1rem;
@@ -50,6 +51,9 @@
                         font-size: 1.5rem;
                         cursor: pointer;
                         font-family: monospace;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        text-wrap: nowrap;
                     }
                     span.text:hover {
                         text-decoration: underline;
@@ -92,18 +96,6 @@
                 text-align: center;
                 cursor: pointer;
                 transition: background-color 0.5s;
-            }
-            button.upload {
-                background-color: #519;
-            }
-            button.upload:hover {
-                background-color: #84C;
-            }
-            button.cancel {
-                background-color: #915;
-            }
-            button.cancel:hover {
-                background-color: #C48;
             }
         }
     }

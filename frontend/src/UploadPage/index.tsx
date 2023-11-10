@@ -51,6 +51,11 @@ export default class UploadPage extends React.Component<propsType, stateType> {
         if (this.props.login && !prevProps.login) {
             this.getAllTickets();
         }
+        if (this.props.show !== prevProps.show) {
+            this.setState({
+                uploadMessage: ""
+            });
+        }
     }
 
     unshiftTicket(ticket_id: string) {

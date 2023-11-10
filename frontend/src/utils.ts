@@ -10,3 +10,15 @@ export function downloadBlob(data: Blob | MediaSource, fileName: string): boolea
     URL.revokeObjectURL(url);
     return true;
 }
+
+export function copy(context?: string, name?: string, func?: (s: string) => void) {
+    if (context === null || context === undefined) {
+        if (func !== undefined) func(`複製${name}失敗`);
+        return;
+    }
+    navigator.clipboard.writeText(context).then(() => {
+        if (func !== undefined) func(`複製${name}成功`);
+    }).catch(() => {
+        if (func !== undefined) func(`複製${name}失敗`);
+    });
+}

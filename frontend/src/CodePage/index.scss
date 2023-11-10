@@ -1,3 +1,5 @@
+@import "../buttonBarColor.scss";
+
 #codePage {
     .lastPage {
         position: absolute;
@@ -11,98 +13,52 @@
     .lastPage:hover {
         color: #FFF;
     }
+    .buttonBar {
+        display: flex;
+        gap: 0.5rem;
+        > div {
+            font-size: 1.2rem;
+            height: 2.2rem;
+            line-height: 2.2rem;
+            padding: 0 1rem;
+            color: #FFF;
+            border-radius: 0.5rem;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.5s;
+            cursor: pointer;
+        }
+        .message {
+            flex: 1;
+            padding: 0;
+            cursor: auto;
+            color: #FFF;
+            overflow: hidden;
+            overflow-x: auto;
+            text-wrap: nowrap;
+        }
+        input {
+            background-color: transparent;
+            outline: none;
+            border: none;
+            color: #888;
+            font-size: 1rem;
+            line-height: 2rem;
+            height: 2rem;
+            width: 6em;
+            border-bottom: #888 solid 0.05rem;
+        }
+        .left {
+            text-align: left;
+        }
+    }
     div.block.data {
         display: flex;
         flex-wrap: wrap;
         gap: 0.5rem;
-        .infoBox.ticketId {
+        .infoBox.ticketId,
+        .buttonBar {
             width: 100%;
-        }
-    }
-    div.block.code {
-        .secBlock {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            .buttonBar {
-                display: flex;
-                gap: 0.5rem;
-                div {
-                    font-size: 1.2rem;
-                    height: 2.2rem;
-                    line-height: 2.2rem;
-                    padding: 0 1rem;
-                    color: #FFF;
-                    border-radius: 0.5rem;
-                    text-align: center;
-                    text-decoration: none;
-                    transition: background-color 0.5s;
-                    cursor: pointer;
-                }
-                .copyLink {
-                    background-color: #474;
-                }
-                .copyLink:hover {
-                    background-color: #696;
-                }
-                .copyCode {
-                    background-color: #28B;
-                }
-                .copyCode:hover {
-                    background-color: #4AD;
-                }
-                .download {
-                    background-color: #C61;
-                }
-                .download:hover {
-                    background-color: #FA5;
-                }
-                .message {
-                    flex: 1;
-                    padding: 0;
-                    cursor: auto;
-                    color: #FFF;
-                    overflow: hidden;
-                    overflow-x: auto;
-                    text-wrap: nowrap;
-                    // text-overflow: ellipsis;
-                }
-                input {
-                    background-color: transparent;
-                    outline: none;
-                    border: none;
-                    color: #888;
-                    font-size: 1rem;
-                    line-height: 2rem;
-                    height: 2rem;
-                    width: 6em;
-                    border-bottom: #888 solid 0.05rem;
-                }
-                .upload {
-                    background-color: #62F;
-                }
-                .upload:hover {
-                    background-color: #40C;
-                }
-            }
-            .emptyBox {
-                height: 5rem;
-                line-height: 5rem;
-                font-size: 2rem;
-                color: #888;
-                text-align: center;
-            }
-            pre {
-                border-top-left-radius: 1.2rem;
-                margin: 0;
-                overflow-y: auto;
-                background-color: #000;
-                padding: 1.2rem;
-                code {
-                    font-size: 1.2rem;
-                    font-family: monospace;
-                }
-            }
         }
     }
 }

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Cookie, Depends
+from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
 

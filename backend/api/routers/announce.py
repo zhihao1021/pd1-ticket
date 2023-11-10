@@ -2,8 +2,6 @@ from aiofile import async_open
 from fastapi import APIRouter, Form, status
 from orjson import loads, dumps
 
-from os.path import isfile
-
 from schemas.announcement import Announcement
 from schemas.user import User
 

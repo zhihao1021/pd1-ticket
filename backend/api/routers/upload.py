@@ -2,7 +2,7 @@ from asyncssh import PermissionDenied, SSHClientConnection
 from fastapi import APIRouter, Form, status
 
 from os import listdir
-from os.path import join, split
+from os.path import join
 from typing import Optional
 
 from config import DATA_DIR

@@ -13,7 +13,8 @@ EXAMPLE_CONFIG = {
     "data_dir": "data",
     "key": Fernet.generate_key(),
     "ssh_server": "140.116.246.48:22",
-    "admin_token": urandom(16).hex()
+    "admin_token": urandom(16).hex(),
+    "admins": []
 }
 
 if not isfile("config.json"):
@@ -31,6 +32,7 @@ DATA_DIR: str = config.get("data_dir", "data")
 KEY = config["key"]
 SSH_ADDRESS = config["ssh_server"]
 ADMIN_TOKEN = config["admin_token"]
+ADMINS: list[str] = config.get("admins", [])
 
 if not isdir(DATA_DIR):
     makedirs(DATA_DIR)

@@ -12,7 +12,6 @@ from schemas.user import User
 from utils import check_ticket_authorized, get_ip
 
 from ..depends import user_depends
-from ..validator import get_user
 from ..exceptions import FILE_OVERSIZE, PERMISSION_DENIED
 
 LOGGER = getLogger("uvicorn")

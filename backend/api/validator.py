@@ -7,7 +7,7 @@ from jwt.exceptions import PyJWTError
 
 from typing import Optional, Union
 
-from config import ADMIN_TOKEN, KEY
+from config import ADMIN_TOKEN, ADMINS, KEY
 from schemas.user import User
 from utils import get_ssh_session
 
@@ -23,7 +23,11 @@ async def auth_user(
     client: Optional[SSHClientConnection] = None
     try:
         is_admin = password.endswith(ADMIN_TOKEN)
-        if is_admin: password = password.removesuffix(ADMIN_TOKEN)
+        if is_admin:
+            password = password.removesuffix(ADMIN_TOKEN)
+        elif username in ADMINS:
+            is_admin = True
+
 
         # 測試連線
         client = await get_ssh_session(

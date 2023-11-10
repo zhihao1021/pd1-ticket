@@ -128,7 +128,7 @@ async def pull(
         filename = f"{user_hash}-{timestamp}-{raw_filename}"
 
         if download:
-            download_dir = join(DATA_DIR, "temp")
+            download_dir = "download-temp"
             download_path = join(download_dir, filename)
             if not isdir(download_dir):
                 makedirs(download_dir)

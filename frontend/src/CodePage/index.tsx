@@ -123,7 +123,7 @@ export default class CodePage extends React.Component<propsType, stateType> {
 
     getTicket() {
         const {hash} = this.props;
-        if (hash === null) return;
+        if (hash === null || hash === "") return;
         this.props.switchLoading(true);
         axios.get(
             `${apiEndPoint}/ticket/${hash}`,

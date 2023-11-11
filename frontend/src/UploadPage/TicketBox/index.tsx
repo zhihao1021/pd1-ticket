@@ -33,9 +33,12 @@ export default function TicketBox(props: propsType): React.ReactElement {
         });
     }
 
+    const ticketInfo = ticketId.split("-", 1)[0];
+    const displayTicket = ticketId.replace(ticketInfo, ticketInfo.slice(0, 8));
+
     return (
         <div className="ticketBox">
-            <a className="name" href={`#${ticketId}`}>{ticketId}</a>
+            <a className="name" href={`#${ticketId}`}>{displayTicket}</a>
             <div className="delete" onClick={() => {deleteTicket(ticketId);}} >Delete</div>
             <div className="download" onClick={downloadTicket} >Download</div>
         </div>

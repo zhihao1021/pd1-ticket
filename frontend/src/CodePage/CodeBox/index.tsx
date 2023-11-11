@@ -1,8 +1,16 @@
 import React from "react";
+import hljs from "highlight.js/lib/core";
+import c from "highlight.js/lib/languages/cpp";
+
+// import 'highlight.js/styles/atom-one-dark-reasonable.css';
+// import 'highlight.js/styles/atom-one-dark.css';
+import 'highlight.js/styles/atom-one-light.css';
 
 import { copy, downloadBlob } from "../../utils";
 
 import "./index.scss";
+
+hljs.registerLanguage("c", c);
 
 type propsType = Readonly<{
     hash: string | null,
@@ -89,9 +97,11 @@ export default class CodeBox extends React.Component<propsType, stateType> {
                         code === null? 
                         <div className="emptyBox">File Not Found</div> :
                         <pre>
-                            <code>
-                                {code}
-                            </code>
+                            <code dangerouslySetInnerHTML={{
+                                __html: hljs.highlight(code, {language: "c"}).value
+                            }} />
+                                {/* {code}
+                            </code> */}
                         </pre>
                     }
                 </div>

@@ -59,7 +59,7 @@ async def upload_file(
                 try:
                     commands = [
                         "clang-format",
-                        "--style=\"{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0 }\""
+                        "--style=\"{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0 }\"",
                         "\"" + join(DATA_DIR, ticket_id) + "\""
                     ]
                     result = run(

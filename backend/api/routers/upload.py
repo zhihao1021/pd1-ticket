@@ -57,8 +57,13 @@ async def upload_file(
         if formatCode:
             def __format():
                 try:
+                    commands = [
+                        "clang-format",
+                        "--style=\"{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0 }\""
+                        "\"" + join(DATA_DIR, ticket_id) + "\""
+                    ]
                     result = run(
-                        "clang-format --style=\"{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0 }\" " + join(DATA_DIR, ticket_id),
+                        " ".join(commands),
                         stdout=PIPE
                     )
                     return result.stdout

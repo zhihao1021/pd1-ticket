@@ -38,7 +38,7 @@ export default class CodeBox extends React.Component<propsType, stateType> {
                 this.setState({message: `複製程式碼失敗`});
                 return;
             }
-            copy(window.location.href, "程式碼", (s) => {this.setState({message: s})});
+            copy(code, "程式碼", (s) => {this.setState({message: s})});
         }
         this.copyLink = this.copyLink.bind(this);
         this.copyCode = this.copyCode.bind(this);

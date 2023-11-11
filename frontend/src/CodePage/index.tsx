@@ -45,6 +45,8 @@ export default class CodePage extends React.Component<propsType, stateType> {
             judgeList: [],
         };
 
+        this.uploadTicket = this.uploadTicket.bind(this);
+
         this.judge = this.judge.bind(this);
         this.switchJudge = this.switchJudge.bind(this);
         this.changeJudgeOption = this.changeJudgeOption.bind(this);

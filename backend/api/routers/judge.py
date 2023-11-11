@@ -5,6 +5,7 @@ from config import DATA_DIR, JUDGE_COMMANDS
 from os import listdir
 from os.path import join
 from schemas.user import User
+from time import time
 from typing import Optional
 from utils import check_ticket_authorized, get_ssh_session
 
@@ -59,7 +60,7 @@ async def get_judge_result(
         sftp = await client.start_sftp_client()
 
         ticket_info = ticket_id.split("-", 2)[0][:4]
-        timestamp  = ticket_id.split("-", 2)[1].replace(".", "")
+        timestamp  = int(time())
         dir_path = f"pd1-ticket-temp/{ticket_info}_{timestamp}"
         filename = f"{command}.c"
         path = f"{dir_path}/{filename}"

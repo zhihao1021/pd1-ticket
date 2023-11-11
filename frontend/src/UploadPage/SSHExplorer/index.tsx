@@ -101,15 +101,13 @@ export default class SSHExplorer extends React.Component<propsType, stateType> {
 
         // 顯示載入畫面
         this.props.switchLoading(true);
-        const formData = new FormData();
-        formData.append("path", selectedFile);
-        if (download) {
-            formData.append("download", "true");
-        }
 
-        axios.post(
+        axios.postForm(
             `${apiEndPoint}/pull`,
-            formData
+            {
+                path: selectedFile,
+                download: download
+            }
         ).then((response) => {
             // 清空選擇檔案
             this.setState({

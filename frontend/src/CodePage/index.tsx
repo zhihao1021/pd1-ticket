@@ -23,6 +23,7 @@ type stateType = Readonly<{
     uploadDirPath: string,
     uploadFileName: string,
     fileName: string,
+    format: boolean,
     showJudge: boolean,
     judgeContext: string,
     judgeOption: number,
@@ -39,6 +40,7 @@ export default class CodePage extends React.Component<propsType, stateType> {
             uploadDirPath: "",
             uploadFileName: "",
             fileName: "",
+            format: false,
             showJudge: false,
             judgeContext: "",
             judgeOption: 0,
@@ -48,6 +50,7 @@ export default class CodePage extends React.Component<propsType, stateType> {
         this.uploadTicket = this.uploadTicket.bind(this);
 
         this.judge = this.judge.bind(this);
+        this.switchFormat = this.switchFormat.bind(this);
         this.switchJudge = this.switchJudge.bind(this);
         this.changeJudgeOption = this.changeJudgeOption.bind(this);
     }
@@ -82,6 +85,14 @@ export default class CodePage extends React.Component<propsType, stateType> {
             })
             this.getTicket();
         }
+    }
+
+    switchFormat(status?: boolean) {
+        this.setState((state)=> {
+            return {
+                format: status === undefined ? !state.format : status
+            };
+        });
     }
 
     switchJudge(status?: boolean) {
@@ -147,7 +158,8 @@ export default class CodePage extends React.Component<propsType, stateType> {
         if (hash === null) return;
         const {
             uploadDirPath,
-            uploadFileName
+            uploadFileName,
+            format
         } = this.state;
         this.props.switchLoading(true);
         axios.postForm(
@@ -155,7 +167,8 @@ export default class CodePage extends React.Component<propsType, stateType> {
             {
                 ticket_id: hash,
                 dir_path: uploadDirPath,
-                filename: uploadFileName
+                filename: uploadFileName,
+                formatCode: format
             }
         ).then((response) => {
             this.setState({message: `上傳成功: ~/${response.data}`,});
@@ -209,6 +222,7 @@ export default class CodePage extends React.Component<propsType, stateType> {
             uploadDirPath,
             uploadFileName,
             fileName,
+            format,
             showJudge,
             judgeContext,
             judgeOption,
@@ -258,6 +272,8 @@ export default class CodePage extends React.Component<propsType, stateType> {
                     hash={hash}
                     code={code}
                     fileName={fileName}
+                    format={format}
+                    switchFormat={this.switchFormat}
                 />
                 <JudgeBox
                     show={showJudge}

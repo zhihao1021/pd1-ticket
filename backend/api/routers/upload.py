@@ -1,8 +1,10 @@
 from asyncssh import PermissionDenied, SSHClientConnection
 from fastapi import APIRouter, Form, status
 
+from asyncio import get_event_loop
 from os import listdir
 from os.path import join
+from subprocess import run, PIPE
 from typing import Optional
 
 from config import DATA_DIR
@@ -29,6 +31,7 @@ async def upload_file(
     ticket_id: str=Form(),
     dir_path: str=Form(""),
     filename: Optional[str]=Form(None),
+    formatCode: bool=Form(False),
     user: User=user_depends
 ):
     if ticket_id not in listdir(DATA_DIR):
@@ -50,7 +53,27 @@ async def upload_file(
         path = join(dir_path, filename).replace("\\", "/")
         if (dir_path != "" and not await sftp.isdir(dir_path)):
             await sftp.makedirs(dir_path)
-        await sftp.put(join(DATA_DIR, ticket_id), path)
+
+        if formatCode:
+            def __format():
+                try:
+                    result = run(
+                        "clang-format --style=\"{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0 }\" " + join(DATA_DIR, ticket_id),
+                        stdout=PIPE
+                    )
+                    return result.stdout
+                except:
+                    return b""
+            loop = get_event_loop()
+            formatResult = await loop.run_in_executor(None, __format)
+            if formatResult == b"":
+                await sftp.put(join(DATA_DIR, ticket_id), path)
+            else:
+                async with sftp.open(path, "wb") as f:
+                    await f.write(formatResult)
+        else:
+            await sftp.put(join(DATA_DIR, ticket_id), path)
+
         return path
     except PermissionDenied:
         raise AUTHORIZE_FAIL

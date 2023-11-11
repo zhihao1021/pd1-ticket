@@ -102,10 +102,10 @@ async def explorer_websocket(
 )
 async def pull(
     path: str = Form(),
-    download: str = Form(""),
+    download: bool = Form(False),
     user: User = user_depends
 ) -> Union[str, bytes]:
-    download = download == "true"
+    # download = download == "true"
     try:
         client = await get_ssh_session(
             username=user.username,

@@ -16,9 +16,14 @@ export function copy(context?: string, name?: string, func?: (s: string) => void
         if (func !== undefined) func(`複製${name}失敗`);
         return;
     }
-    navigator.clipboard.writeText(context).then(() => {
-        if (func !== undefined) func(`複製${name}成功`);
-    }).catch(() => {
+    try {
+        navigator.clipboard.writeText(context).then(() => {
+            if (func !== undefined) func(`複製${name}成功`);
+        }).catch(() => {
+            if (func !== undefined) func(`複製${name}失敗`);
+        });
+    }
+    catch {
         if (func !== undefined) func(`複製${name}失敗`);
-    });
+    }
 }

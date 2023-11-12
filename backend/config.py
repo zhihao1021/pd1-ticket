@@ -12,10 +12,12 @@ EXAMPLE_CONFIG = {
     "api_root_path": "",
     "data_dir": "data",
     "key": Fernet.generate_key(),
-    "ssh_server": "140.116.246.48:22",
+    "ssh_server": "",
     "admin_token": urandom(16).hex(),
     "admins": [],
-    "judge_commands": []
+    "judge_commands": [],
+    "expired_weekday": 3,
+    "expired_week": 1,
 }
 
 if not isfile("config.json"):
@@ -35,6 +37,8 @@ SSH_ADDRESS = config["ssh_server"]
 ADMIN_TOKEN = config["admin_token"]
 ADMINS: list[str] = config.get("admins", [])
 JUDGE_COMMANDS: list[str] = config.get("judge_commands", [])
+EXPIRED_WEEKDAY: int = config.get("expired_weekday", 3)
+EXPIRED_WEEK: int = config.get("expired_week", 1)
 
 if not isdir(DATA_DIR):
     makedirs(DATA_DIR)

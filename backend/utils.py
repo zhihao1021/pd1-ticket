@@ -3,7 +3,7 @@ from fastapi import Request
 
 from datetime import datetime, timedelta
 
-from config import SSH_ADDRESS
+from config import EXPIRED_WEEKDAY, EXPIRED_WEEK, SSH_ADDRESS
 from schemas.user import User
 
 async def get_ssh_session(
@@ -30,9 +30,12 @@ def check_ticket_authorized(
     datetime_timestamp = datetime.strptime(timestamp, "%Y_%m_%dT%H.%M.%S")
     
     # 檢查是否已通過有效日期
-    delta_days = 3 - datetime_timestamp.weekday()
-    delta_days += 0 if delta_days > 0 else 7
-    expired = datetime.now() > (datetime_timestamp + timedelta(days=delta_days)).replace(hour=23, minute=59, second=59)
+    if EXPIRED_WEEK > 0:
+        delta_days = min(6, max(0, EXPIRED_WEEKDAY)) - datetime_timestamp.weekday()
+        delta_days += 0 if delta_days > 0 else 7
+        expired = datetime.now() > (datetime_timestamp + timedelta(days=delta_days + 7 * (EXPIRED_WEEK - 1))).replace(hour=23, minute=59, second=59)
+    else:
+        expired = True
 
     pass_authorize = expired
     if user is not None:

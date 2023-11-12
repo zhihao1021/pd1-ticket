@@ -22,7 +22,7 @@
 #### 有GUI的SSH Explorer
 ![SSH Explorer](readme/feature/p2.png)
 
-#### Client Side Style Format <br/>
+#### Client Side Style Format
 - Before Format
 ![Before Format](readme/feature/p3.png)
 - After Format

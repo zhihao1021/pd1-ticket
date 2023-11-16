@@ -79,7 +79,7 @@ export default class JudgeBox extends React.Component<propsType, stateType> {
                             <div className="copyLink" onClick={this.copyNoCode}>Copy Without ANSI</div>
                             <div className="download" onClick={this.downloadCurrentTicket}>Download</div>
                             <div className="message">{message}</div>
-                            <div className="cancel" onClick={() => {switchJudge(false);}}>Cancel</div>
+                            <div className="Back" onClick={() => {switchJudge(false);}}>Back</div>
                         </div>
                     </div>
                 </div>

@@ -11,7 +11,7 @@ class User(BaseModel):
     admin: bool
 
     def hash_value(self) -> str:
-        hash_username = sha256(self.username.encode())
+        hash_username = sha256(self.username.upper().encode())
         return hash_username.hexdigest()[:32]
     
     def decrypted_password(self) -> str:

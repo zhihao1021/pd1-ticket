@@ -1,6 +1,7 @@
 import axios from "axios";
 import React from "react";
 
+import ConfirmBlock from "./ConfirmBlock";
 import SSHExplorer from "./SSHExplorer";
 import UploadBlock from "./UploadBlock";
 import TicketBlock from "./TicketBlock";
@@ -20,6 +21,9 @@ type stateType = Readonly<{
     selectedFile: File | null,
     uploadMessage: string,
     showExplorer: boolean,
+    confirmMessage: string,
+    confirmShow: boolean,
+    confirmFunc?: () => void
 }>;
 
 export default class UploadPage extends React.Component<propsType, stateType> {
@@ -30,7 +34,9 @@ export default class UploadPage extends React.Component<propsType, stateType> {
             tickets: [],
             selectedFile: null,
             uploadMessage: "",
-            showExplorer: false
+            showExplorer: false,
+            confirmMessage: "",
+            confirmShow: false
         };
 
         this.selectFile = this.selectFile.bind(this);
@@ -151,25 +157,32 @@ export default class UploadPage extends React.Component<propsType, stateType> {
 
     // 刪除Ticket
     deleteTicket(ticketId: string) {
-        // 顯示載入畫面
-        this.props.switchLoading(true);
-        
-        // 發送請求
-        axios.delete(
-            `${apiEndPoint}/ticket/${ticketId}`,
-        ).then(() => {
-            this.setState(state => {
-                const originTickets = state.tickets;
-                return {
-                    tickets: originTickets.filter(value => value !== ticketId),
-                };
-            })
-        }).catch(() => {
-            this.getAllTickets();
-            alert("Error")
-        }).finally(() => {
-            // 關閉載入畫面
-            this.props.switchLoading(false);
+        const confirmFunc = () => {
+            // 顯示載入畫面
+            this.props.switchLoading(true);
+            
+            // 發送請求
+            axios.delete(
+                `${apiEndPoint}/ticket/${ticketId}`,
+            ).then(() => {
+                this.setState(state => {
+                    const originTickets = state.tickets;
+                    return {
+                        tickets: originTickets.filter(value => value !== ticketId),
+                    };
+                })
+            }).catch(() => {
+                this.getAllTickets();
+                alert("Error")
+            }).finally(() => {
+                // 關閉載入畫面
+                this.props.switchLoading(false);
+            });
+        };
+        this.setState({
+            confirmShow: true,
+            confirmMessage: "確定要刪除Ticket嗎",
+            confirmFunc: confirmFunc
         });
     }
 
@@ -184,6 +197,9 @@ export default class UploadPage extends React.Component<propsType, stateType> {
             selectedFile,
             uploadMessage,
             showExplorer,
+            confirmMessage,
+            confirmShow,
+            confirmFunc
         } = this.state;
 
         const classList = ["page"];
@@ -217,6 +233,12 @@ export default class UploadPage extends React.Component<propsType, stateType> {
                     switchLoading={switchLoading}
                     unshiftTicket={this.unshiftTicket}
                     switchExplorer={this.switchExplorer}
+                />
+                <ConfirmBlock
+                    message={confirmMessage}
+                    show={confirmShow}
+                    close={() => {this.setState({confirmShow: false});}}
+                    confirm={confirmFunc}
                 />
             </div>
         );

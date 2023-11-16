@@ -1,0 +1,69 @@
+#confirmBlock {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    opacity: 0%;
+    pointer-events: none;
+    transition: opacity 0.5s;
+    background-color: #1118;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .box {
+        position: relative;
+        min-width: 20em;
+        min-height: 10em;
+        padding: 1.25em;
+        background-color: #222;
+        display: flex;
+        flex-direction: column;
+        // border-radius: 0.75em;
+        border: #FFF solid 0.1rem;
+        h2 {
+            position: absolute;
+            top: -1.75rem;
+            left: 1rem;
+            margin: 0;
+            padding: 0 0.5rem;
+            height: 3rem;
+            line-height: 3rem;
+            font-size: 2rem;
+            z-index: 0;
+        }
+        h2::after {
+            content: "";
+            position: absolute;
+            top: 1.70rem;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #222;
+            z-index: -1;
+        }
+        .message {
+            font-size: 1.5rem;
+            margin: auto 0;
+            padding: 1em 2em;
+        }
+        .buttonBar {
+            font-size: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            div {
+                cursor: pointer;
+                padding: 0.2em 0.75em;
+                border-radius: 0.3em;
+                transition: background-color 0.5s;
+            }
+        }
+    }
+}
+
+#confirmBlock.show {
+    opacity: 100%;
+    pointer-events: initial;
+}

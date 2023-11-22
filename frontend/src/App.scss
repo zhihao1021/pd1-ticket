@@ -59,5 +59,6 @@
         opacity: 0%;
         transform: translateY(2vh);
         pointer-events: none;
+        z-index: -1;
     }    
 }

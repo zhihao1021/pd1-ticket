@@ -9,7 +9,7 @@ from time import time
 from typing import Optional
 from utils import check_ticket_authorized, get_ssh_session
 
-from ..depends import user_depends
+from ..depends import ticket_depends, user_depends
 from ..exceptions import (
     AUTHORIZE_FAIL,
     PERMISSION_DENIED,
@@ -34,22 +34,12 @@ async def get_judge_list() -> list[str]:
     status_code=status.HTTP_200_OK
 )
 async def get_judge_result(
-    ticket_id: str,
     command: str,
-    user: User=user_depends
+    user: User=user_depends,
+    ticket_id: str=ticket_depends,
 ) -> str:
-    if ticket_id not in listdir(DATA_DIR):
-        raise PERMISSION_DENIED
     if command not in JUDGE_COMMANDS:
         raise UNKNOW_COMMAND
-    
-    pass_authorize = check_ticket_authorized(
-        ticket_id=ticket_id,
-        user=user
-    )
-
-    if not pass_authorize:
-        raise PERMISSION_DENIED
     
     client: Optional[SSHClientConnection] = None
     try:
@@ -61,18 +51,42 @@ async def get_judge_result(
 
         ticket_info = ticket_id.split("-", 2)[0][:4]
         timestamp  = int(time())
-        dir_path = f"pd1-ticket-temp/{ticket_info}_{timestamp}"
-        filename = f"{command}.c"
-        path = f"{dir_path}/{filename}"
+        remote_dir_path = f"pd1-ticket-temp/{ticket_info}_{timestamp}"
+        if not await sftp.isdir(remote_dir_path):
+            await sftp.makedirs(remote_dir_path)
+        
+        local_dir_path = join(DATA_DIR, ticket_id)
 
-        if (not await sftp.isdir(dir_path)):
-            await sftp.makedirs(dir_path)
-        await sftp.put(join(DATA_DIR, ticket_id), path)
+        async def __upload(local_file: str, remote_file: str):
+            local_path = join(local_dir_path, local_file)
+            remote_path = f"{remote_dir_path}/{remote_file}"
+            await sftp.put(local_path, remote_path)
 
+        local_file = f"{command}.c"
+        if local_file not in listdir(local_dir_path):
+            local_file = listdir(local_dir_path)[0]
+            local_file_list = list(filter(lambda file: file.endswith(".c"), listdir(local_dir_path)))
+            if len(local_file_list) != 0:
+                local_file = local_file_list[0]
+        remote_file = f"{command}.c"
+        await __upload(local_file=local_file, remote_file=remote_file)
+
+        # 追加條件-檔案
+        if command == "hw8":
+            local_file = f"{command}.h"
+            if local_file not in listdir(local_dir_path):
+                local_file = listdir(local_dir_path)[1]
+                local_file_list = list(filter(lambda file: file.endswith(".h"), listdir(local_dir_path)))
+                if len(local_file_list) != 0:
+                    local_file = local_file_list[0]
+            await __upload(local_file=local_file, remote_file="hw8.h")
+
+        # 追加條件-指令
         if command == "hw6_random":
             command = "hw6"
+
         result = await client.run(
-            f"{command} -p {dir_path}",
+            f"{command} -p {remote_dir_path}",
             timeout=15
         )
         result = result.stdout

@@ -4,40 +4,22 @@ from fastapi.responses import FileResponse
 
 from datetime import datetime
 from logging import getLogger
-from os import listdir, remove
-from os.path import join
+from os import makedirs, listdir
+from os.path import isdir, isfile, join
 
 from config import DATA_DIR
 from schemas.user import User
-from utils import check_ticket_authorized, get_ip
+from utils import get_ip, rmtree
 
-from ..depends import user_depends
-from ..exceptions import FILE_OVERSIZE, PERMISSION_DENIED
+from ..depends import ticket_depends, user_depends
+from ..exceptions import (
+    FILE_NOT_FOUND,
+    FILE_OVERSIZE,
+    NO_FILE,
+    PERMISSION_DENIED
+)
 
 LOGGER = getLogger("uvicorn")
-
-async def __get_ticket(user: User, ticket_id: str):
-    try:
-        if ticket_id not in listdir(DATA_DIR):
-            raise PERMISSION_DENIED
-        
-        # 檢查是否已通過有效日期
-        pass_authorize = check_ticket_authorized(
-            ticket_id=ticket_id,
-            user=user
-        )
-
-        if pass_authorize:
-            response = FileResponse(
-                path=join(DATA_DIR, ticket_id),
-                media_type="text/plain",
-                filename=ticket_id
-            )
-        else:
-            raise PERMISSION_DENIED
-        return response
-    except:
-        raise PERMISSION_DENIED
 
 route = APIRouter(
     prefix="/ticket",
@@ -67,50 +49,72 @@ async def get_all_ticket(
     status_code=status.HTTP_201_CREATED,
 )
 async def add_ticket(
-    file: UploadFile,
+    files: list[UploadFile],
     user: User=user_depends,
 ) -> str:
-    if file.size > 32 * 1024:
+    if len(files) == 0:
+        raise NO_FILE
+    if sum(map(lambda file: file.size, files)) > 32 * 1024:
         raise FILE_OVERSIZE
     
     user_hash = user.hash_value()
 
-    timestamp = datetime.now().strftime("%Y_%m_%dT%H.%M.%S")
-    file_name = f"{user_hash}-{timestamp}-{file.filename}"
-    file_name = file_name
+    timestamp = datetime.now().strftime("%Y_%m_%dT%H.%M.%S.%f")
+    # Ticket ID
+    dir_name = f"{user_hash}-{timestamp}"
+    dir_path = join(DATA_DIR, dir_name)
 
-    content = await file.read()
-    async with async_open(join(DATA_DIR, file_name), "wb") as write_file:
-        await write_file.write(content)
+    if not isdir(dir_path):
+        makedirs(dir_path)
+
+    for file in files:
+        content = await file.read()
+        async with async_open(join(dir_path, file.filename), "wb") as write_file:
+            await write_file.write(content)
     
-    return file_name
+    return dir_name
 
 @route.get(
     path="/{ticket_id}",
     status_code=status.HTTP_200_OK
 )
+async def get_ticket_list(
+    ticket_id: str=ticket_depends
+) -> list[str]:
+    return listdir(join(DATA_DIR, ticket_id))
+
+@route.get(
+    path="/{ticket_id}/{filename}",
+    status_code=status.HTTP_200_OK
+)
 async def get_ticket(
-    request: Request,
-    ticket_id: str,
-    user: User = user_depends
-):
-    LOGGER.info(f"User: {user.username}, RemoteIP: {get_ip(request)}, AccessTicket: {ticket_id}")
-    return await __get_ticket(user, ticket_id)
+    filename: str,
+    ticket_id: str=ticket_depends,
+) -> list[str]:
+    dir_path = join(DATA_DIR, ticket_id)
+    filepath = join(dir_path, filename)
+    if not isfile(filepath):
+        raise FILE_NOT_FOUND
+
+    return FileResponse(
+        path=filepath,
+        media_type="text/plain",
+        filename=filename
+    )
 
 @route.delete(
     path="/{ticket_id}",
     status_code=status.HTTP_204_NO_CONTENT
 )
 async def delete_ticket(
-    ticket_id: str,
+    ticket_id: str=ticket_depends,
     user: User=user_depends
 ):
-    if ticket_id not in listdir(DATA_DIR):
-        raise PERMISSION_DENIED
     user_hash = user.hash_value()
 
     if user.admin or ticket_id.startswith(f"{user_hash}-"):
-        remove(join(DATA_DIR, ticket_id))
+        dir_path = join(DATA_DIR, ticket_id)
+        rmtree(dir_path)
     else:
         raise PERMISSION_DENIED
 

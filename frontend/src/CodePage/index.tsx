@@ -18,11 +18,12 @@ type propsType = Readonly<{
     switchLoading: (status?: boolean) => void,
 }>;
 type stateType = Readonly<{
-    code: string | null,
+    selectedCode: number,
+    codeList: Array<string>,
     message: string,
     uploadDirPath: string,
     uploadFileName: string,
-    fileName: string,
+    fileNameList: Array<string>,
     format: boolean,
     showJudge: boolean,
     judgeContext: string,
@@ -31,21 +32,28 @@ type stateType = Readonly<{
 }>;
 
 export default class CodePage extends React.Component<propsType, stateType> {
+    switchSelectCode: (index: number) => void
     constructor(props: propsType) {
         super(props);
 
         this.state = {
-            code: null,
+            selectedCode: 0,
+            codeList: [],
             message: "",
             uploadDirPath: "",
             uploadFileName: "",
-            fileName: "",
+            fileNameList: [],
             format: false,
             showJudge: false,
             judgeContext: "",
             judgeOption: 0,
             judgeList: [],
         };
+
+        this.switchSelectCode = (index: number) => {
+            this.setState({selectedCode: index});
+        };
+        this.switchSelectCode = this.switchSelectCode.bind(this);
 
         this.uploadTicket = this.uploadTicket.bind(this);
 
@@ -139,14 +147,22 @@ export default class CodePage extends React.Component<propsType, stateType> {
         axios.get(
             `${apiEndPoint}/ticket/${hash}`,
         ).then((response) => {
-            const filePrefix = `${hash.split("-", 2).join("-")}-`;
-            this.setState({
-                code: response.data,
-                fileName: hash.replace(filePrefix, ""),
-            });
+            const fileList: Array<string> = response.data;
+            Promise.all(fileList.map(filename => axios.get(
+                `${apiEndPoint}/ticket/${hash}/${filename}`
+            ))).then((responses) => {
+                const codeList = responses.map((response) => response.data)
+                this.setState({
+                    selectedCode: 0,
+                    codeList: codeList,
+                    fileNameList: fileList,
+                });
+            })
         }).catch(() => {
             this.setState({
-                code: null
+                selectedCode: 0,
+                codeList: [],
+                fileNameList: [],
             })
         }).finally(() => {
             this.props.switchLoading(false);
@@ -157,6 +173,8 @@ export default class CodePage extends React.Component<propsType, stateType> {
         const {hash} = this.props;
         if (hash === null) return;
         const {
+            selectedCode,
+            fileNameList,
             uploadDirPath,
             uploadFileName,
             format
@@ -166,9 +184,10 @@ export default class CodePage extends React.Component<propsType, stateType> {
             `${apiEndPoint}/upload`,
             {
                 ticket_id: hash,
-                dir_path: uploadDirPath,
-                filename: uploadFileName,
-                formatCode: format
+                local_filename: fileNameList[selectedCode],
+                remote_dir: uploadDirPath,
+                remote_filename: uploadFileName,
+                format_code: format
             }
         ).then((response) => {
             this.setState({message: `上傳成功: ~/${response.data}`,});
@@ -217,11 +236,12 @@ export default class CodePage extends React.Component<propsType, stateType> {
             hash
         } = this.props;
         const {
-            code,
+            selectedCode,
+            codeList,
             message,
             uploadDirPath,
             uploadFileName,
-            fileName,
+            fileNameList,
             format,
             showJudge,
             judgeContext,
@@ -242,7 +262,7 @@ export default class CodePage extends React.Component<propsType, stateType> {
                 <div className="data block">
                     <h2>Info</h2>
                     <InfoBox title="Upload Time" context={fileDateTime ?? ""} />
-                    <InfoBox title="File Name" context={fileName ?? ""} />
+                    <InfoBox title="File Name" context={fileNameList[selectedCode]} />
                     <InfoBox title="Ticket ID" className="ticketId" context={hash} />
                     <div className="buttonBar">
                         <div className="judge" onClick={this.judge}>Judge</div>
@@ -253,6 +273,12 @@ export default class CodePage extends React.Component<propsType, stateType> {
                             displayRow={3}
                         />
                         <div className="message">{message}</div>
+                        <Selection
+                            value={selectedCode}
+                            options={fileNameList}
+                            changeValue={(index: number) => {this.setState({selectedCode: index})}}
+                            displayRow={3}
+                        />
                         <input
                             className="path"
                             placeholder="Path"
@@ -270,8 +296,8 @@ export default class CodePage extends React.Component<propsType, stateType> {
                 </div>
                 <CodeBox
                     hash={hash}
-                    code={code}
-                    fileName={fileName}
+                    code={codeList[selectedCode] ?? null}
+                    fileName={fileNameList[selectedCode] ?? ""}
                     format={format}
                     switchFormat={this.switchFormat}
                 />

@@ -129,12 +129,13 @@ export default class CodeBox extends React.Component<propsType, stateType> {
         const {
             code,
             format,
-            switchFormat
+            switchFormat,
         } = this.props;
         const {
             message,
-            formattedCode
+            formattedCode,
         } = this.state;
+
         return (
             <div id="codeBox" className="block">
                 <h2>Code Preview</h2>
@@ -150,7 +151,7 @@ export default class CodeBox extends React.Component<propsType, stateType> {
                         <div className="message left">{message}</div>
                     </div>
                     {
-                        code === null? 
+                        code === null ? 
                         <div className="emptyBox">File Not Found</div> :
                         <pre>
                             <code dangerouslySetInnerHTML={{

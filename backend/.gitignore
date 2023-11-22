@@ -165,3 +165,4 @@ data.sqlite
 logs/
 test*
 announcement.json
+download-temp

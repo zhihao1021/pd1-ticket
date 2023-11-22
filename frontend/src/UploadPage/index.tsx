@@ -18,7 +18,7 @@ type propsType = Readonly<{
 }>;
 type stateType = Readonly<{
     tickets: Array<string>,
-    selectedFile: File | null,
+    selectedFiles: FileList | null,
     uploadMessage: string,
     showExplorer: boolean,
     confirmMessage: string,
@@ -32,7 +32,7 @@ export default class UploadPage extends React.Component<propsType, stateType> {
 
         this.state = {
             tickets: [],
-            selectedFile: null,
+            selectedFiles: null,
             uploadMessage: "",
             showExplorer: false,
             confirmMessage: "",
@@ -85,10 +85,10 @@ export default class UploadPage extends React.Component<propsType, stateType> {
     // 選擇檔案
     selectFile(event: React.ChangeEvent<HTMLInputElement>) {
         if (event.target.files === null) return;
-        const file: File | null = event.target.files[0] ?? null;
+        const files: FileList | null = event.target.files ?? null;
         this.setState(state => {
             return {
-                selectedFile: file ?? state.selectedFile,
+                selectedFiles: files ?? state.selectedFiles,
                 uploadMessage: "",
             };
         });
@@ -97,15 +97,17 @@ export default class UploadPage extends React.Component<propsType, stateType> {
     // 傳送檔案
     sendFile() {
         // 檢查是否有選擇檔案
-        const file = this.state.selectedFile;
-        if (file === null) {
+        const files = this.state.selectedFiles;
+        if (files === null || files.length === 0) {
             this.setState({uploadMessage: "No selected file."});
             return;
         }
         // 顯示載入畫面
         this.props.switchLoading(true);
         const formData = new FormData();
-        formData.append("file", file);
+        for (let i=0; i < files.length; i++) {
+            formData.append("file[]", files[i]);
+        }
 
         // 發送請求
         axios.post(`${apiEndPoint}/ticket`,
@@ -114,7 +116,7 @@ export default class UploadPage extends React.Component<propsType, stateType> {
             // 清空選擇檔案
             this.setState({
                 uploadMessage: "",
-                selectedFile: null,
+                selectedFiles: null,
             });
             // 更新列表
             this.unshiftTicket(response.data);
@@ -122,7 +124,7 @@ export default class UploadPage extends React.Component<propsType, stateType> {
         }).catch((error) => {
             this.setState({
                 uploadMessage: `Error: ${error.response.data.detail}`,
-                selectedFile: null
+                selectedFiles: null
             });
         }).finally(() => {
             // 關閉載入畫面
@@ -194,7 +196,7 @@ export default class UploadPage extends React.Component<propsType, stateType> {
         } = this.props;
         const {
             tickets,
-            selectedFile,
+            selectedFiles,
             uploadMessage,
             showExplorer,
             confirmMessage,
@@ -214,7 +216,7 @@ export default class UploadPage extends React.Component<propsType, stateType> {
                 <UploadBlock
                     selectFile={this.selectFile}
                     sendFile={this.sendFile}
-                    selectedFile={selectedFile}
+                    selectedFiles={selectedFiles}
                     uploadMessage={uploadMessage}
                     switchExplorer={this.switchExplorer}
                 />

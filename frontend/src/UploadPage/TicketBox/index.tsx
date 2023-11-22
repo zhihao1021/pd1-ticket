@@ -24,10 +24,15 @@ export default function TicketBox(props: propsType): React.ReactElement {
         axios.get(
             `${apiEndPoint}/ticket/${ticketId}`,
         ).then((response) => {
-            const filePrefix = `${ticketId.split("-", 2).join("-")}-`;
-            const fileName = ticketId.replace(filePrefix, "");
+            const fileList: Array<string> = response.data;
+            fileList.forEach(fileName => {
+                axios.get(
+                    `${apiEndPoint}/ticket/${ticketId}/${fileName}`
+                ).then((response) => {
+                    downloadBlob(new File([response.data], fileName), fileName);
+                });
+            });
 
-            downloadBlob(new File([response.data], fileName), fileName);
         }).finally(() => {
             switchLoading(false);
         });

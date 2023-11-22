@@ -16,7 +16,7 @@ from ..exceptions import (
     PERMISSION_DENIED,
     UNKNOW_ERROR
 )
-from ..depends import user_depends
+from ..depends import ticket_form_depends, user_depends
 
 router = APIRouter(
     prefix="/upload",
@@ -28,10 +28,11 @@ router = APIRouter(
     status_code=status.HTTP_201_CREATED
 )
 async def upload_file(
-    ticket_id: str=Form(),
-    dir_path: str=Form(""),
-    filename: Optional[str]=Form(None),
-    formatCode: bool=Form(False),
+    ticket_id: str=ticket_form_depends,
+    local_filename: str=Form(),
+    remote_dir: str=Form(""),
+    remote_filename: Optional[str]=Form(None),
+    format_code: bool=Form(False),
     user: User=user_depends
 ):
     if ticket_id not in listdir(DATA_DIR):
@@ -48,19 +49,22 @@ async def upload_file(
             password=user.decrypted_password()
         )
         sftp = await client.start_sftp_client()
-        dir_path = dir_path.removeprefix("~/")
-        filename = filename or ticket_id.split('-', 2)[-1]
-        path = join(dir_path, filename).replace("\\", "/")
-        if (dir_path != "" and not await sftp.isdir(dir_path)):
-            await sftp.makedirs(dir_path)
+        remote_dir = remote_dir.removeprefix("~/")
+        remote_path = join(remote_dir, remote_filename or local_filename)
+        remote_path = remote_path.replace("\\", "/")
+        if (remote_dir != "" and not await sftp.isdir(remote_dir)):
+            await sftp.makedirs(remote_dir)
 
-        if formatCode:
+        local_dir = join(DATA_DIR, ticket_id)
+        local_path = join(local_dir, local_filename)
+        
+        if format_code:
             def __format():
                 try:
                     commands = [
                         "clang-format",
                         "--style=\"{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0 }\"",
-                        "\"" + join(DATA_DIR, ticket_id) + "\""
+                        "\"" + local_path + "\""
                     ]
                     result = run(
                         " ".join(commands),
@@ -70,16 +74,16 @@ async def upload_file(
                 except:
                     return b""
             loop = get_event_loop()
-            formatResult = await loop.run_in_executor(None, __format)
-            if formatResult == b"":
-                await sftp.put(join(DATA_DIR, ticket_id), path)
+            format_result = await loop.run_in_executor(None, __format)
+            if format_result == b"":
+                await sftp.put(local_path, remote_path)
             else:
-                async with sftp.open(path, "wb") as f:
-                    await f.write(formatResult)
+                async with sftp.open(remote_path, "wb") as f:
+                    await f.write(format_result)
         else:
-            await sftp.put(join(DATA_DIR, ticket_id), path)
+            await sftp.put(local_path, remote_path)
 
-        return path
+        return remote_path
     except PermissionDenied:
         raise AUTHORIZE_FAIL
     except:

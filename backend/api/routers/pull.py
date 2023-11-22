@@ -2,6 +2,7 @@ from aiofile import async_open
 from asyncssh import PermissionDenied, SFTPClient, SFTPName, SFTPNoSuchFile, SSHClientConnection
 from fastapi import APIRouter, Form, status, WebSocket, WebSocketDisconnect
 from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
 
 from asyncio import get_event_loop
 from datetime import datetime
@@ -24,6 +25,10 @@ from ..exceptions import (
     UNKNOW_ERROR
 )
 from ..validator import get_user
+
+class PullData(BaseModel):
+    path_list: list[str]
+    download: bool = False
 
 def __ls_filter(item: SFTPName, uid: int, file_or_dir: int=1) -> bool:
     if item.attrs.type != file_or_dir:
@@ -101,22 +106,26 @@ async def explorer_websocket(
     status_code=status.HTTP_201_CREATED
 )
 async def pull(
-    path: str = Form(),
-    download: bool = Form(False),
+    data: PullData,
     user: User = user_depends
 ) -> Union[str, bytes]:
-    # download = download == "true"
     try:
+        path_list = data.path_list
+        download = data.download
+
         client = await get_ssh_session(
             username=user.username,
             password=user.decrypted_password()
         )
-        raw_filename = path.rsplit('/', 1)[1]
-        sftp = await client.start_sftp_client()
-        isfile = await sftp.isfile(path)
-        if not isfile:
-            raise FILE_NOT_FOUND
-        filesize = await sftp.getsize(path)
+        filesize_sum = 0
+        for path in path_list:
+            sftp = await client.start_sftp_client()
+            isfile = await sftp.isfile(path)
+            if not isfile:
+                raise FILE_NOT_FOUND
+            filesize = await sftp.getsize(path)
+            filesize_sum += filesize
+
         if download and filesize > 32 * 1024 * 1024:
             raise DOWNLOAD_OVERSIZE
         elif filesize > 32 * 1024:
@@ -124,27 +133,29 @@ async def pull(
         
         user_hash = user.hash_value()
 
-        timestamp = datetime.now().strftime("%Y_%m_%dT%H.%M.%S")
-        filename = f"{user_hash}-{timestamp}-{raw_filename}"
+        timestamp = datetime.now().strftime("%Y_%m_%dT%H.%M.%S.%f")
+        dir_name = f"{user_hash}-{timestamp}"
 
         if download:
-            download_dir = "download-temp"
-            download_path = join(download_dir, filename)
-            if not isdir(download_dir):
-                makedirs(download_dir)
+            download_dir = join("download-temp", dir_name)
         else:
-            download_path = join(DATA_DIR, filename)
+            download_dir = join(DATA_DIR, dir_name)
+        if not isdir(download_dir):
+            makedirs(download_dir)
 
-        await sftp.get(path, download_path)
+        for path in path_list:
+            raw_filename = path.rsplit('/', 1)[1]
+            await sftp.get(path, join(download_dir, raw_filename))
         
         if download:
-            async with async_open(download_path, "rb") as df:
-                content = await df.read()
-            loop = get_event_loop()
-            await loop.run_in_executor(None, remove, download_path)
-            return StreamingResponse(BytesIO(content))
+            pass
+            # async with async_open(download_path, "rb") as df:
+            #     content = await df.read()
+            # loop = get_event_loop()
+            # await loop.run_in_executor(None, remove, download_path)
+            # return StreamingResponse(BytesIO(content))
         else:
-            return filename
+            return dir_name
     except PermissionDenied:
         raise AUTHORIZE_FAIL
     except:

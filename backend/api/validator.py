@@ -1,17 +1,30 @@
 from asyncssh import SSHClientConnection, PermissionDenied
 from cryptography.fernet import Fernet
-from fastapi import Depends
+from fastapi import Depends, Form, Request
 from fastapi.security import OAuth2PasswordBearer
 from jwt import decode, encode
 from jwt.exceptions import PyJWTError
 
+from logging import getLogger
+from os import listdir
+from os.path import isdir, join
 from typing import Optional, Union
 
-from config import ADMIN_TOKEN, ADMINS, KEY
+from config import ADMIN_TOKEN, ADMINS, DATA_DIR, KEY
 from schemas.user import User
-from utils import get_ssh_session
+from utils import (
+    check_ticket_authorized,
+    get_ip,
+    get_ssh_session
+)
 
-from .exceptions import AUTHORIZE_FAIL, UNAUTHORIZE
+from .exceptions import (
+    AUTHORIZE_FAIL,
+    PERMISSION_DENIED,
+    UNAUTHORIZE
+)
+
+LOGGER = getLogger("uvicorn")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="oauth/login")
 
@@ -59,3 +72,28 @@ async def get_user(
         return User(**data)
     except PyJWTError:
         raise UNAUTHORIZE
+    
+def check_ticket(
+    request: Request,
+    ticket_id: str,
+    user: User=Depends(get_user)
+) -> str:
+    LOGGER.info(f"User: {user.username}, RemoteIP: {get_ip(request)}, AccessTicket: {request.url}")
+
+    if ticket_id not in listdir(DATA_DIR):
+        raise PERMISSION_DENIED
+    
+    if not check_ticket_authorized(
+        ticket_id=ticket_id,
+        user=user
+    ) or not isdir(join(DATA_DIR, ticket_id)):
+        raise PERMISSION_DENIED
+    
+    return ticket_id
+
+def check_ticket_form(
+    request: Request,
+    ticket_id: str=Form(),
+    user: User=Depends(get_user)
+):
+    return check_ticket(request, ticket_id, user)

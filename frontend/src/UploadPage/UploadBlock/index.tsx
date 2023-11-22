@@ -6,7 +6,7 @@ type propsType = Readonly<{
     selectFile: (event: React.ChangeEvent<HTMLInputElement>) => void,
     sendFile: () => void,
     switchExplorer: (status?: boolean) => void,
-    selectedFile: File | null,
+    selectedFiles: FileList | null,
     uploadMessage: string,
 }>;
 
@@ -15,9 +15,17 @@ export default function UploadBlock(props: propsType): React.ReactElement {
         selectFile,
         sendFile,
         switchExplorer,
-        selectedFile,
+        selectedFiles,
         uploadMessage
     } = props;
+    const displayFileString = selectedFiles !== null && selectedFiles?.length !== 0;
+    let fileString = "";
+    if (selectedFiles !== null) {
+        for (let i=0; i < selectedFiles.length; i++) {
+            fileString += selectedFiles[i].name;
+            if (i !== selectedFiles.length - 1) fileString += ", ";
+        }
+    }
     return (
         <div className="uploadBlock block buttonBar">
             <h2>Upload File</h2>
@@ -30,7 +38,7 @@ export default function UploadBlock(props: propsType): React.ReactElement {
                     accept=".c"
                 />
             </label>
-            <div className="filename">{selectedFile?.name ?? "No selected file"}</div>
+            <div className="filename">{displayFileString ? fileString : "No selected file"}</div>
             <div className="message">{uploadMessage}</div>
             <div className="submit button" onClick={sendFile}>Submit</div>
         </div>

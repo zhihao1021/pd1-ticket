@@ -13,7 +13,7 @@ type propsType = Readonly<{
     switchExplorer: (status?: boolean) => void,
 }>;
 type stateType = Readonly<{
-    selectedFile: string,
+    selectedFiles: Array<string>,
     path: string,
     directory: Array<string>,
     files: Array<string>,
@@ -26,7 +26,7 @@ export default class SSHExplorer extends React.Component<propsType, stateType> {
         super(props);
 
         this.state = {
-            selectedFile: "",
+            selectedFiles: [],
             path: "",
             directory: [],
             files: [],
@@ -81,18 +81,27 @@ export default class SSHExplorer extends React.Component<propsType, stateType> {
         }
     }
 
-    selectFile(fileName: string) {
+    selectFile(fileName: string, append: boolean=false) {
         this.setState(state => {
+            let result = append ? state.selectedFiles : [];
+            if (append) {
+                console.log(fileName);
+                if (result.includes(fileName)) {
+                    result = result.filter(file => file !== fileName);
+                }
+                else result.push(fileName);
+            }
+            else result.push(fileName);
             return {
-                selectedFile: `${state.path}/${fileName}`,
+                selectedFiles: result,
                 message: ""
             }
         })
     }
 
     sendPullRequest(download: boolean) {
-        const {selectedFile} = this.state;
-        if (selectedFile === "") {
+        const {selectedFiles} = this.state;
+        if (selectedFiles.length === 0) {
             this.setState({
                 message: "No selected file"
             });
@@ -102,22 +111,20 @@ export default class SSHExplorer extends React.Component<propsType, stateType> {
         // 顯示載入畫面
         this.props.switchLoading(true);
 
-        axios.postForm(
+        axios.post(
             `${apiEndPoint}/pull`,
             {
-                path: selectedFile,
+                path_list: selectedFiles,
                 download: download
-            }
+            },
         ).then((response) => {
             // 清空選擇檔案
             this.setState({
                 message: "",
-                selectedFile: "",
+                selectedFiles: [],
             });
             if (download) {
-                const filenameList = selectedFile.split("/");
-                const filename = filenameList[filenameList.length - 1];
-                downloadBlob(new Blob([response.data]), filename);
+                downloadBlob(new Blob([response.data]), "download.zip");
             }
             else {
                 // 更新列表
@@ -126,10 +133,9 @@ export default class SSHExplorer extends React.Component<propsType, stateType> {
                 window.location.hash = response.data;
             }
         }).catch((error) => {
-            console.log(error);
             this.setState({
                 message: `Error: ${error.response.data.detail}`,
-                selectedFile: ""
+                selectedFiles: []
             });
         }).finally(() => {
             // 關閉載入畫面
@@ -143,12 +149,16 @@ export default class SSHExplorer extends React.Component<propsType, stateType> {
             switchExplorer,
         } = this.props;
         const {
-            selectedFile,
+            selectedFiles,
             path,
             directory,
             files,
             message
         } = this.state;
+        const selectFileNames = selectedFiles.map(filename => {
+            const filenameList = filename.split("/");
+            return filenameList[filenameList.length - 1];
+        });
         return (
             <div id="sshExplorer" className={show ? "page show" : "page"}>
                 <div className="block">
@@ -173,7 +183,7 @@ export default class SSHExplorer extends React.Component<propsType, stateType> {
                                     <span className="ms-o">draft</span>
                                     <span
                                         className="text"
-                                        onClick={() => {this.selectFile(name)}}
+                                        onClick={(event: React.MouseEvent) => {this.selectFile(`${path}/${name}`.replaceAll("//", "/"), event.shiftKey)}}
                                         title={name}
                                     >{name}</span>
                                 </div>)
@@ -181,7 +191,10 @@ export default class SSHExplorer extends React.Component<propsType, stateType> {
                         </div>
                     </div>
                     <div className="buttonBar">
-                        <div className="path">File: <span>{selectedFile}</span></div>
+                        <div
+                            className="path"
+                            title={selectFileNames.join(", ")}
+                        >File: <span>{selectFileNames.join(", ")}</span></div>
                         <div className="message">{message}</div>
                         <button className="pull" onClick={() => {this.sendPullRequest(false)}}>Pull</button>
                         <button className="download" onClick={() => {this.sendPullRequest(true)}}>Download</button>

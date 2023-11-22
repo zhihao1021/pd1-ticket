@@ -4,7 +4,7 @@ div.selection {
     top: -0.05em;
     text-align: center;
     text-indent: -0.6em;
-    border: 0.05em solid #FFF8;
+    border: 1px solid #FFF8;
     transition: border-color 0.5s;
     border-radius: 0 !important;
     pointer-events: none;
@@ -22,7 +22,7 @@ div.selection {
         border-top: none;
         position: absolute;
         top: 100%;
-        left: -0.05em;
+        left: -1px;
         padding: 0 1em 0 0.5em;
         width: calc(0.75em * var(--font-num) + 1.525em);
         opacity: 0%;
@@ -30,8 +30,12 @@ div.selection {
         pointer-events: none;
         transition: opacity 0.5s;
         user-select: none;
+        max-height: calc(2.2rem * var(--row));
+        overflow-y: auto;
         > div {
             color: #FFF8;
+            height: 2.2rem;
+            line-height: 2.2rem;
             transition: color 0.5s;
         }
         > div:hover {

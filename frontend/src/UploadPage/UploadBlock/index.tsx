@@ -36,6 +36,7 @@ export default function UploadBlock(props: propsType): React.ReactElement {
                     type="file"
                     onChange={selectFile}
                     accept=".c"
+                    multiple={true}
                 />
             </label>
             <div className="filename">{displayFileString ? fileString : "No selected file"}</div>

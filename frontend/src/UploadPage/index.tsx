@@ -106,7 +106,7 @@ export default class UploadPage extends React.Component<propsType, stateType> {
         this.props.switchLoading(true);
         const formData = new FormData();
         for (let i=0; i < files.length; i++) {
-            formData.append("file[]", files[i]);
+            formData.append("files", files[i]);
         }
 
         // 發送請求

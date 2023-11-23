@@ -87,7 +87,7 @@ async def get_judge_result(
         # 題目檔案
         await judge.write(MAIN_CODE, "main.c")
 
-        _, stderr, return_code = await judge.command(
+        stdout, stderr, return_code = await judge.command(
             "gcc main.c hw8-1.c -o hw8-1",
             timeout=5,
             chdir=True
@@ -95,7 +95,7 @@ async def get_judge_result(
         if return_code != 0:
             return SpecialJudge(
                 error=True,
-                stderr=stderr
+                stderr=stderr or stdout or "No Error Message"
             )
         
         # 傳送測資
@@ -103,7 +103,7 @@ async def get_judge_result(
         await judge.write(testcase, "testcase.in")
         await judge.write(answer, "testcase.out")
         
-        _, stderr, return_code = await judge.command(
+        stdout, stderr, return_code = await judge.command(
             "./hw8-1 < testcase.in > your_answer.out",
             timeout=3,
             chdir=True
@@ -111,7 +111,7 @@ async def get_judge_result(
         if return_code != 0:
             return SpecialJudge(
                 error=True,
-                stderr=stderr
+                stderr=stderr or stdout or "No Error Message"
             )
         
         stdout, _, _ = await judge.command(

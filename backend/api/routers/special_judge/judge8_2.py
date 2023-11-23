@@ -118,6 +118,7 @@ async def get_judge_result(
             timeout=3,
             chdir=True
         )
+        if stdout == "": stdout = "Answer Correct"
         return SpecialJudge(
             diff=stdout,
             testcase=testcase,

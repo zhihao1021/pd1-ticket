@@ -231,6 +231,28 @@ export default class SpecialJudgeBox extends React.Component<propsType, stateTyp
             tabOption,
             exportOption,
         } = this.state
+
+        let firstContent: string | Array<React.ReactElement> | undefined = firstBlock;
+        let secondContent: string | Array<React.ReactElement> | undefined = secondBlock;
+
+        if (tabOption == 1 && firstBlock && secondBlock) {
+            const firstSplit = firstBlock.split("\n");
+            const secondSplit = secondBlock.split("\n");
+
+            firstContent = firstSplit.map((value, index) => (
+                <span
+                    key={index}
+                    className={value !== secondSplit[index] ? "diff" : undefined}
+                >{value}</span>
+            ));
+            secondContent = secondSplit.map((value, index) => (
+                <span
+                    key={index}
+                    className={value !== firstSplit[index] ? "diff" : undefined}
+                >{value}</span>
+            ));
+        }
+
         return (
             <div id="specialJudgeBox" className={show ? "page show" : "page"}>
                 <div className="block">
@@ -279,7 +301,7 @@ export default class SpecialJudgeBox extends React.Component<propsType, stateTyp
                                                     {firstBlock.split("\n").map((v, index) => `${index+1}\n`)}
                                                 </code>: undefined
                                             }
-                                            <code>{firstBlock}</code>
+                                            <code className="wrap">{firstContent}</code>
                                         </div>
                                     </pre>
                                 </div> : undefined
@@ -298,7 +320,7 @@ export default class SpecialJudgeBox extends React.Component<propsType, stateTyp
                                                     {secondBlock.split("\n").map((v, index) => `${index+1}\n`)}
                                                 </code>: undefined
                                             }
-                                            <code>{secondBlock}</code>
+                                            <code className="wrap">{secondContent}</code>
                                         </div>
                                     </pre>
                                 </div> : undefined

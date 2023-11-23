@@ -5,7 +5,7 @@ import Selection from "../Selection";
 
 import InfoBox from "./InfoBox";
 import JudgeBox from "./JudgeBox";
-import SpecialJudgeBox from "./specialJudgeBox";
+import SpecialJudgeBox from "./SpecialJudgeBox";
 import CodeBox from "./CodeBox";
 
 import { apiEndPoint } from "../config";

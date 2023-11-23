@@ -32,6 +32,16 @@
                         > div {
                             display: flex;
                             gap: 0.5em;
+                            code.wrap {
+                                flex: 1;
+                                >span {
+                                    padding-left: 0.3em;
+                                    display: block;
+                                }
+                                >span.diff {
+                                    background-color: #F33A;
+                                }
+                            }
                             code.num {
                                 user-select: none;
                                 font-size: 0.9em;

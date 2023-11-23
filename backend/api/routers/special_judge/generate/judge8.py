@@ -25,7 +25,7 @@ def generate() -> tuple[str, str]:
             gen_string = random_str()
             x, y, z = char_conv(gen_string)
 
-            value = randint(-10000, 10000) if randint(5) else 0
+            value = randint(-10000, 10000) if randint(0, 5) else 0
 
             modifyed.add(gen_string)
             array[x][y][z] = value

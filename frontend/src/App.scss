@@ -17,7 +17,7 @@
         opacity: 100%;
         transform: translateY(0);
         pointer-events: initial;
-        z-index: 3;
+        z-index: 1;
         transition:
             opacity 0.5s,
             transform 0.5s;
@@ -57,6 +57,7 @@
     }
     
     .page:not(.show) {
+        z-index: 0;
         opacity: 0%;
         transform: translateY(2vh);
         pointer-events: none;

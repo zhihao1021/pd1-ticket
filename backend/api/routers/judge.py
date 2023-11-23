@@ -1,21 +1,21 @@
-from asyncssh import SSHClientConnection, PermissionDenied
+from asyncssh import PermissionDenied
 from fastapi import APIRouter, status
+from pydantic import BaseModel
 
-from config import DATA_DIR, JUDGE_COMMANDS
-from os import listdir
-from os.path import join
+from config import JUDGE_COMMANDS
 from schemas.user import User
-from time import time
-from typing import Optional
-from utils import check_ticket_authorized, get_ssh_session
+from utils import JudgeConnection, similar_file
 
 from ..depends import ticket_depends, user_depends
 from ..exceptions import (
     AUTHORIZE_FAIL,
-    PERMISSION_DENIED,
     UNKNOW_COMMAND,
     UNKNOW_ERROR,
 )
+
+class JudgeList(BaseModel):
+    normal: list[str]
+    special: list[str]
 
 router = APIRouter(
     prefix="/judge",
@@ -26,8 +26,8 @@ router = APIRouter(
     path="",
     status_code=status.HTTP_200_OK
 )
-async def get_judge_list() -> list[str]:
-    return JUDGE_COMMANDS
+async def get_judge_list() -> JudgeList:
+    return JudgeList(normal=JUDGE_COMMANDS, special=["judge8-1", "judge8-2"])
 
 @router.get(
     path="/{ticket_id}",
@@ -41,55 +41,36 @@ async def get_judge_result(
     if command not in JUDGE_COMMANDS:
         raise UNKNOW_COMMAND
     
-    client: Optional[SSHClientConnection] = None
+    judge: JudgeConnection = JudgeConnection(
+        user=user,
+        ticket_id=ticket_id
+    )
     try:
-        client = await get_ssh_session(
-            username=user.username,
-            password=user.decrypted_password()
+        await judge.open()
+
+        local_file = similar_file(f"{command}.c", judge.local_dir_path)
+        await judge.upload(
+            local_file=local_file,
+            remote_file=f"{command}.c"
         )
-        sftp = await client.start_sftp_client()
-
-        ticket_info = ticket_id.split("-", 2)[0][:4]
-        timestamp  = int(time())
-        remote_dir_path = f"pd1-ticket-temp/{ticket_info}_{timestamp}"
-        if not await sftp.isdir(remote_dir_path):
-            await sftp.makedirs(remote_dir_path)
-        
-        local_dir_path = join(DATA_DIR, ticket_id)
-
-        async def __upload(local_file: str, remote_file: str):
-            local_path = join(local_dir_path, local_file)
-            remote_path = f"{remote_dir_path}/{remote_file}"
-            await sftp.put(local_path, remote_path)
-
-        local_file = f"{command}.c"
-        if local_file not in listdir(local_dir_path):
-            local_file = listdir(local_dir_path)[0]
-            local_file_list = list(filter(lambda file: file.endswith(".c"), listdir(local_dir_path)))
-            if len(local_file_list) != 0:
-                local_file = local_file_list[0]
-        remote_file = f"{command}.c"
-        await __upload(local_file=local_file, remote_file=remote_file)
 
         # 追加條件-檔案
-        if command == "hw8":
-            local_file = f"{command}.h"
-            if local_file not in listdir(local_dir_path):
-                local_file = listdir(local_dir_path)[1]
-                local_file_list = list(filter(lambda file: file.endswith(".h"), listdir(local_dir_path)))
-                if len(local_file_list) != 0:
-                    local_file = local_file_list[0]
-            await __upload(local_file=local_file, remote_file="hw8.h")
+        if command.startswith("hw8"):
+            local_file = similar_file(f"{command}.h", judge.local_dir_path)
+            await judge.upload(
+                local_file=local_file,
+                remote_file=f"{command}.h"
+            )
 
         # 追加條件-指令
         if command == "hw6_random":
             command = "hw6"
 
-        result = await client.run(
-            f"{command} -p {remote_dir_path}",
-            timeout=15
+        result, _, _ = await judge.command(
+            command=f"{command} -p {judge.remote_dir_path}",
+            timeout=15,
+            chdir=False
         )
-        result = result.stdout
 
         return result
     except PermissionDenied:
@@ -99,5 +80,4 @@ async def get_judge_result(
     except:
         raise UNKNOW_ERROR
     finally:
-        if client:
-            client.close()
+        judge.close()

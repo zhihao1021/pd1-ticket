@@ -27,8 +27,8 @@ body {
 }
 
 ::-webkit-scrollbar {
-  width: 0.25rem;
-  height: 0.25rem;
+  width: 0.35rem;
+  height: 0.35rem;
 }
 
 ::-webkit-scrollbar-track {
@@ -43,4 +43,11 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background-color: #555;
+}
+
+code {
+  font-family: Consolas, source-code-pro, Menlo, Monaco, "Courier New", monospace !important;
+  * {
+    font-family: Consolas, source-code-pro, Menlo, Monaco, "Courier New", monospace !important;
+  }
 }

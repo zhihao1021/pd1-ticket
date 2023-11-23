@@ -1,28 +1,9 @@
-from asyncssh import connect, SSHClientConnection, SSHClientConnectionOptions
 from fastapi import Request
 
 from datetime import datetime, timedelta
-from os import listdir, remove, rmdir
-from os.path import isdir, isfile, join
 
 from config import EXPIRED_WEEKDAY, EXPIRED_WEEK, SSH_ADDRESS
 from schemas.user import User
-
-async def get_ssh_session(
-    username: str,
-    password: str,
-) -> SSHClientConnection:
-    host, port = SSH_ADDRESS.split(":")
-    client = await connect(
-        host=host,
-        port=int(port),
-        username=username,
-        password=password,
-        options=SSHClientConnectionOptions(
-            public_key_auth=False
-        )
-    )
-    return client
 
 def check_ticket_authorized(
     ticket_id: str,
@@ -59,11 +40,3 @@ def get_ip(request: Request):
         return result
     except:
         return request.client.host
-
-def rmtree(path: str):
-    if isfile(path):
-        remove(path)
-    elif isdir(path):
-        for file in listdir(path):
-            rmtree(join(path, file))
-        rmdir(path)

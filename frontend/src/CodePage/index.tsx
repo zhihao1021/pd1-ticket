@@ -5,6 +5,7 @@ import Selection from "../Selection";
 
 import InfoBox from "./InfoBox";
 import JudgeBox from "./JudgeBox";
+import SpecialJudgeBox from "./specialJudgeBox";
 import CodeBox from "./CodeBox";
 
 import { apiEndPoint } from "../config";
@@ -26,9 +27,12 @@ type stateType = Readonly<{
     fileNameList: Array<string>,
     format: boolean,
     showJudge: boolean,
+    showSpecialJudge: boolean,
+    speicalJudgeCommand: string,
     judgeContext: string,
     judgeOption: number,
     judgeList: Array<string>
+    specialJudgeList: Array<string>
 }>;
 
 export default class CodePage extends React.Component<propsType, stateType> {
@@ -45,9 +49,12 @@ export default class CodePage extends React.Component<propsType, stateType> {
             fileNameList: [],
             format: false,
             showJudge: false,
+            showSpecialJudge: false,
+            speicalJudgeCommand: "",
             judgeContext: "",
             judgeOption: 0,
             judgeList: [],
+            specialJudgeList: [],
         };
 
         this.switchSelectCode = (index: number) => {
@@ -60,6 +67,7 @@ export default class CodePage extends React.Component<propsType, stateType> {
         this.judge = this.judge.bind(this);
         this.switchFormat = this.switchFormat.bind(this);
         this.switchJudge = this.switchJudge.bind(this);
+        this.switchSpecialJudge = this.switchSpecialJudge.bind(this);
         this.changeJudgeOption = this.changeJudgeOption.bind(this);
     }
 
@@ -105,9 +113,13 @@ export default class CodePage extends React.Component<propsType, stateType> {
 
     switchJudge(status?: boolean) {
         this.setState((state)=> {
-            return {
-                showJudge: status === undefined ? !state.showJudge : status
-            };
+            return {showJudge: status === undefined ? !state.showJudge : status};
+        });
+    }
+
+    switchSpecialJudge(status?: boolean) {
+        this.setState((state)=> {
+            return {showSpecialJudge: status === undefined ? !state.showSpecialJudge : status};
         });
     }
 
@@ -134,7 +146,8 @@ export default class CodePage extends React.Component<propsType, stateType> {
         ).then(
             (response) => {
                 this.setState({
-                    judgeList: response.data
+                    judgeList: response.data["normal"],
+                    specialJudgeList: response.data["special"],
                 });
             }
         )
@@ -202,11 +215,22 @@ export default class CodePage extends React.Component<propsType, stateType> {
         const {hash} = this.props;
         const {
             judgeOption,
-            judgeList
+            judgeList,
+            specialJudgeList
         } = this.state;
         if (hash === null) return;
+
+        if (judgeOption >= judgeList.length) {
+            this.setState({
+                showSpecialJudge: true,
+                speicalJudgeCommand: specialJudgeList[judgeOption - judgeList.length],
+            });
+            return;
+        }
+
+        // 一般測試
         const command = judgeList[judgeOption];
-        if (command === null) {
+        if (command === undefined) {
             this.setState({
                 message: "測試失敗"
             })
@@ -218,7 +242,8 @@ export default class CodePage extends React.Component<propsType, stateType> {
         ).then((response) => {
             this.setState({
                 judgeContext: response.data,
-                showJudge: true
+                showJudge: true,
+                message: ""
             })
         }).catch(() => {
             this.setState({
@@ -233,7 +258,8 @@ export default class CodePage extends React.Component<propsType, stateType> {
         const {
             login,
             show,
-            hash
+            hash,
+            switchLoading
         } = this.props;
         const {
             selectedCode,
@@ -244,9 +270,12 @@ export default class CodePage extends React.Component<propsType, stateType> {
             fileNameList,
             format,
             showJudge,
+            showSpecialJudge,
+            speicalJudgeCommand,
             judgeContext,
             judgeOption,
-            judgeList
+            judgeList,
+            specialJudgeList
         } = this.state;
 
         let fileDateTime = hash?.split("-", 2)[1];
@@ -268,16 +297,16 @@ export default class CodePage extends React.Component<propsType, stateType> {
                         <div className="judge" onClick={this.judge}>Judge</div>
                         <Selection
                             value={judgeOption}
-                            options={judgeList}
+                            options={judgeList.concat(specialJudgeList)}
                             changeValue={this.changeJudgeOption}
-                            displayRow={3}
+                            displayRow={5}
                         />
                         <div className="message">{message}</div>
                         <Selection
                             value={selectedCode}
                             options={fileNameList}
                             changeValue={(index: number) => {this.setState({selectedCode: index})}}
-                            displayRow={3}
+                            displayRow={5}
                         />
                         <input
                             className="path"
@@ -305,7 +334,17 @@ export default class CodePage extends React.Component<propsType, stateType> {
                     show={showJudge}
                     context={judgeContext}
                     switchJudge={this.switchJudge}
-                 />
+                />
+                <SpecialJudgeBox
+                    show={showSpecialJudge}
+                    hash={hash}
+                    judgeCommand={speicalJudgeCommand}
+                    switchJudge={this.switchSpecialJudge}
+                    switchLoading={switchLoading}
+                    setUpperMessage={(message: string) => {this.setState({
+                        message: message
+                    });}}
+                />
             </div>
         )
     }

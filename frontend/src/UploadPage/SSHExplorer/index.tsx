@@ -138,6 +138,9 @@ export default class SSHExplorer extends React.Component<propsType, stateType> {
                 selectedFiles: []
             });
         }).finally(() => {
+            this.setState({
+                selectedFiles: [],
+            })
             // 關閉載入畫面
             this.props.switchLoading(false);
         });

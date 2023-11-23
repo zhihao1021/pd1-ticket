@@ -16,6 +16,9 @@
         font-size: 1rem;
         padding: 0.5rem 1rem;
     }
+    > button {
+        pointer-events: initial;
+    }
     button {
         font-size: 1rem;
         padding: 0.5rem 1rem;
@@ -25,7 +28,6 @@
         border: none;
         box-shadow: 0.1rem 0.1rem 0.2rem 0.1rem #0008;
         color: #000;
-        pointer-events: initial;
         transition: opacity 0.3s;
         text-align: center;
     }

@@ -29,6 +29,14 @@
                         background-color: #000;
                         border-top-left-radius: 0.75em;
                         overflow: auto;
+                        > div {
+                            display: flex;
+                            gap: 0.5em;
+                            code.num {
+                                user-select: none;
+                                font-size: 0.9em;
+                            }
+                        }
                     }
                 }
             }

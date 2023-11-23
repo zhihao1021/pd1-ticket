@@ -273,7 +273,14 @@ export default class SpecialJudgeBox extends React.Component<propsType, stateTyp
                                         className="firstPre"
                                         onScroll={this.syncScroll}
                                     >
-                                        <code>{firstBlock}</code>
+                                        <div>
+                                            {
+                                                tabOption === 1 ? <code className="num">
+                                                    {firstBlock.split("\n").map((v, index) => `${index+1}\n`)}
+                                                </code>: undefined
+                                            }
+                                            <code>{firstBlock}</code>
+                                        </div>
                                     </pre>
                                 </div> : undefined
                             }
@@ -285,7 +292,14 @@ export default class SpecialJudgeBox extends React.Component<propsType, stateTyp
                                         className="secondPre"
                                         onScroll={this.syncScroll}
                                     >
-                                        <code>{secondBlock}</code>
+                                        <div>
+                                            {
+                                                tabOption === 1 ? <code className="num">
+                                                    {secondBlock.split("\n").map((v, index) => `${index+1}\n`)}
+                                                </code>: undefined
+                                            }
+                                            <code>{secondBlock}</code>
+                                        </div>
                                     </pre>
                                 </div> : undefined
                             }

@@ -103,7 +103,7 @@ async def get_judge_result(
         await judge.write(answer, "testcase.out")
         
         _, stderr, return_code = await judge.command(
-            "./hw8 < testcase.in > your_answer.out",
+            "./hw8-2 < testcase.in > your_answer.out",
             timeout=3,
             chdir=True
         )

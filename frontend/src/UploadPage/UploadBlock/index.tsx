@@ -35,7 +35,7 @@ export default function UploadBlock(props: propsType): React.ReactElement {
                 <input
                     type="file"
                     onChange={selectFile}
-                    accept=".c"
+                    accept=".c,.h"
                     multiple={true}
                 />
             </label>

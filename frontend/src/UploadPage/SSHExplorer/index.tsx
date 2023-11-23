@@ -85,7 +85,6 @@ export default class SSHExplorer extends React.Component<propsType, stateType> {
         this.setState(state => {
             let result = append ? state.selectedFiles : [];
             if (append) {
-                console.log(fileName);
                 if (result.includes(fileName)) {
                     result = result.filter(file => file !== fileName);
                 }
@@ -117,6 +116,12 @@ export default class SSHExplorer extends React.Component<propsType, stateType> {
                 path_list: selectedFiles,
                 download: download
             },
+            download ? {
+                headers: {
+                    "Content-Type": "application/json; application/octet-stream"
+                },
+                responseType: "blob"
+            } : undefined
         ).then((response) => {
             // 清空選擇檔案
             this.setState({
@@ -124,7 +129,7 @@ export default class SSHExplorer extends React.Component<propsType, stateType> {
                 selectedFiles: [],
             });
             if (download) {
-                downloadBlob(new Blob([response.data]), "download.zip");
+                downloadBlob(new Blob([response.data], {type:"application/zip"}), "download.zip");
             }
             else {
                 // 更新列表

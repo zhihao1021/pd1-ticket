@@ -1,6 +1,6 @@
 from aiofile import async_open
 from asyncssh import PermissionDenied, SFTPClient, SFTPName, SFTPNoSuchFile, SSHClientConnection
-from fastapi import APIRouter, Form, status, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, status, WebSocket, WebSocketDisconnect
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
@@ -10,6 +10,7 @@ from io import BytesIO
 from os import makedirs, remove
 from os.path import isdir, join
 from typing import Optional, Union
+from zipfile import ZipFile
 
 from config import DATA_DIR
 from schemas.user import User
@@ -137,25 +138,45 @@ async def pull(
         dir_name = f"{user_hash}-{timestamp}"
 
         if download:
-            download_dir = join("download-temp", dir_name)
+            if not isdir("download-temp"):
+                makedirs("download-temp")
+            file_path = join("download-temp", f"{dir_name}.zip")
+
+            file_data: list[tuple[str, bytes]] = []
+            for path in path_list:
+                raw_filename = path.rsplit('/', 1)[-1]
+
+                async with sftp.open(path, "rb") as remote_file:
+                    content = await remote_file.read()
+                file_data.append((raw_filename, content))
+            def __write_to_zip():
+                with ZipFile(file_path, "w") as zipfile:
+                    for filename, content in file_data:
+                        zipfile.writestr(filename, content)
+            loop = get_event_loop()
+            await loop.run_in_executor(None, __write_to_zip)
+            async with async_open(file_path, "rb") as df:
+                content = await df.read()
+            await loop.run_in_executor(None, remove, file_path)
+            return StreamingResponse(BytesIO(content))
         else:
             download_dir = join(DATA_DIR, dir_name)
-        if not isdir(download_dir):
-            makedirs(download_dir)
 
-        for path in path_list:
-            raw_filename = path.rsplit('/', 1)[1]
-            await sftp.get(path, join(download_dir, raw_filename))
+            if not isdir(download_dir):
+                makedirs(download_dir)
+
+            for path in path_list:
+                raw_filename = path.rsplit('/', 1)[-1]
+                await sftp.get(path, join(download_dir, raw_filename))
+
+            return dir_name
         
-        if download:
             pass
             # async with async_open(download_path, "rb") as df:
             #     content = await df.read()
             # loop = get_event_loop()
             # await loop.run_in_executor(None, remove, download_path)
             # return StreamingResponse(BytesIO(content))
-        else:
-            return dir_name
     except PermissionDenied:
         raise AUTHORIZE_FAIL
     except:

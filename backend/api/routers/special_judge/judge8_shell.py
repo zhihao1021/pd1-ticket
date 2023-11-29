@@ -1,4 +1,7 @@
 from fastapi import APIRouter
+from fastapi.responses import StreamingResponse
+
+from io import BytesIO
 
 from .generate.judge8 import generate
 from .judge8_1 import MAIN_CODE as J8_1_MAIN_CODE
@@ -49,7 +52,9 @@ def get_shell():
         "fi",
     ]
 
-    return "\n".join(result)
+    io = BytesIO("\n".join(result).encode())
+
+    return StreamingResponse(io)
 
 @router.get("/8-2")
 def get_shell():
@@ -91,4 +96,6 @@ def get_shell():
         "fi",
     ]
 
-    return "\n".join(result)
+    io = BytesIO("\n".join(result).encode())
+
+    return StreamingResponse(io)

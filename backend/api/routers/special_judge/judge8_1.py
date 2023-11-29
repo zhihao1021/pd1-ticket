@@ -1,15 +1,12 @@
 from asyncssh import PermissionDenied
 from fastapi import APIRouter, status
 
-from os import listdir
-
-from config import DATA_DIR
 from schemas.user import User
 from utils import similar_file, JudgeConnection
 
 from .response import SpecialJudge
 from .generate.judge8 import generate
-from ...exceptions import AUTHORIZE_FAIL, UNKNOW_ERROR
+from ...exceptions import AUTHORIZE_FAIL
 from ...depends import user_depends, ticket_depends
 
 MAIN_CODE = r"""
@@ -134,4 +131,3 @@ async def get_judge_result(
     #     raise UNKNOW_ERROR
     finally:
         judge.close()
-

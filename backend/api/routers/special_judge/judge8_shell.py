@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-from fastapi.responses import FileResponse
 
 from .generate.judge8 import generate
 from .judge8_1 import MAIN_CODE as J8_1_MAIN_CODE
@@ -50,7 +49,7 @@ def get_shell():
         "fi",
     ]
 
-    return FileResponse("\n".join(result))
+    return "\n".join(result)
 
 @router.get("/8-2")
 def get_shell():
@@ -92,4 +91,4 @@ def get_shell():
         "fi",
     ]
 
-    return FileResponse("\n".join(result))
+    return "\n".join(result)

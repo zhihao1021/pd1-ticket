@@ -1,11 +1,14 @@
 from aiofile import async_open
 from fastapi import APIRouter, Request, status, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 
+from asyncio import get_event_loop
 from datetime import datetime
+from io import BytesIO
 from logging import getLogger
-from os import makedirs, listdir
+from os import makedirs, listdir, remove
 from os.path import isdir, isfile, join
+from zipfile import ZipFile
 
 from config import DATA_DIR
 from schemas.user import User
@@ -78,19 +81,42 @@ async def add_ticket(
     path="/{ticket_id}",
     status_code=status.HTTP_200_OK
 )
-async def get_ticket_list(
-    ticket_id: str=ticket_depends
+async def get_ticket_file_list(
+    ticket_id: str=ticket_depends,
+    download: bool=False
 ) -> list[str]:
-    return listdir(join(DATA_DIR, ticket_id))
+    data_dir = join(DATA_DIR, ticket_id)
+    if download:
+        file_path = join("download-temp", f"{ticket_id}.zip")
+
+        file_data: list[tuple[str, bytes]] = []
+        for filename in listdir(data_dir):
+            file_path = join(data_dir, filename)
+            if not isfile(file_path): continue
+            async with async_open(file_path, "rb") as file:
+                content = await file.read()
+            file_data.append((filename, content))
+        def __write_to_zip():
+            with ZipFile(file_path, "w") as zipfile:
+                for filename, content in file_data:
+                    zipfile.writestr(filename, content)
+        loop = get_event_loop()
+        await loop.run_in_executor(None, __write_to_zip)
+        async with async_open(file_path, "rb") as df:
+            content = await df.read()
+        await loop.run_in_executor(None, remove, file_path)
+        return StreamingResponse(BytesIO(content))
+    else:
+        return listdir(data_dir)
 
 @route.get(
     path="/{ticket_id}/{filename}",
     status_code=status.HTTP_200_OK
 )
-async def get_ticket(
+async def get_ticket_context(
     filename: str,
     ticket_id: str=ticket_depends,
-) -> list[str]:
+) -> FileResponse:
     dir_path = join(DATA_DIR, ticket_id)
     filepath = join(dir_path, filename)
     if not isfile(filepath):

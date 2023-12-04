@@ -1,6 +1,7 @@
 from aiofile import async_open
 from asyncssh import PermissionDenied, SFTPClient, SFTPName, SFTPNoSuchFile, SSHClientConnection
 from fastapi import APIRouter, status, WebSocket, WebSocketDisconnect
+from fastapi.websockets import WebSocketState
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
@@ -23,7 +24,8 @@ from ..exceptions import (
     DOWNLOAD_OVERSIZE,
     FILE_NOT_FOUND,
     FILE_OVERSIZE,
-    UNKNOW_ERROR
+    UNKNOW_ERROR,
+    UNAUTHORIZE
 )
 from ..validator import get_user
 
@@ -67,11 +69,16 @@ router = APIRouter(
 @router.websocket("/explorer")
 async def explorer_websocket(
     ws: WebSocket,
-    token: str
 ):
     client: Optional[SSHClientConnection] = None
-    user: User = await get_user(token)
+
     try:
+        # 驗證使用者
+        await ws.accept()
+        token = await ws.receive_text()
+        user: User = await get_user(token)
+
+        # 連線至伺服器
         client = await get_ssh_session(
             username=user.username,
             password=user.decrypted_password()
@@ -79,8 +86,11 @@ async def explorer_websocket(
         sftp = await client.start_sftp_client()
         uid = int((await client.run("echo $UID")).stdout)
 
-        await ws.accept()
-        path = await sftp.realpath(f".")
+        await ws.send_text("accept")
+        path = await ws.receive_text()
+        path = await sftp.realpath(path)
+        if not await sftp.isdir(path):
+            path = await sftp.realpath(f"~")
         while True:
             result = await listdir(sftp, uid, path)
             await ws.send_json(result.model_dump())
@@ -96,9 +106,14 @@ async def explorer_websocket(
         pass
     except PermissionDenied:
         raise AUTHORIZE_FAIL
+    except UNAUTHORIZE:
+        await ws.close()
+        raise UNAUTHORIZE
     except:
         raise UNKNOW_ERROR
     finally:
+        if ws.state == WebSocketState.CONNECTED:
+            await ws.close()
         if client:
             client.close()
 
@@ -170,13 +185,6 @@ async def pull(
                 await sftp.get(path, join(download_dir, raw_filename))
 
             return dir_name
-        
-            pass
-            # async with async_open(download_path, "rb") as df:
-            #     content = await df.read()
-            # loop = get_event_loop()
-            # await loop.run_in_executor(None, remove, download_path)
-            # return StreamingResponse(BytesIO(content))
     except PermissionDenied:
         raise AUTHORIZE_FAIL
     except:

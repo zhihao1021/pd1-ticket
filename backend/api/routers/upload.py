@@ -29,9 +29,7 @@ router = APIRouter(
 )
 async def upload_file(
     ticket_id: str=ticket_form_depends,
-    local_filename: str=Form(),
     remote_dir: str=Form(""),
-    remote_filename: Optional[str]=Form(None),
     format_code: bool=Form(False),
     user: User=user_depends
 ):
@@ -50,21 +48,18 @@ async def upload_file(
         )
         sftp = await client.start_sftp_client()
         remote_dir = remote_dir.removeprefix("~/")
-        remote_path = join(remote_dir, remote_filename or local_filename)
-        remote_path = remote_path.replace("\\", "/")
         if (remote_dir != "" and not await sftp.isdir(remote_dir)):
             await sftp.makedirs(remote_dir)
 
         local_dir = join(DATA_DIR, ticket_id)
-        local_path = join(local_dir, local_filename)
         
         if format_code:
-            def __format():
+            def __format(file_path):
                 try:
                     commands = [
                         "clang-format",
                         "--style=\"{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0 }\"",
-                        "\"" + local_path + "\""
+                        "\"" + file_path + "\""
                     ]
                     result = run(
                         " ".join(commands),
@@ -74,16 +69,26 @@ async def upload_file(
                 except:
                     return b""
             loop = get_event_loop()
-            format_result = await loop.run_in_executor(None, __format)
-            if format_result == b"":
-                await sftp.put(local_path, remote_path)
-            else:
-                async with sftp.open(remote_path, "wb") as f:
-                    await f.write(format_result)
+            for filename in listdir(local_dir):
+                local_path = join(local_dir, filename)
+                remote_path = join(remote_dir, filename).replace("\\", "/")
+                format_result = await loop.run_in_executor(None, __format, local_path)
+                if format_result == b"":
+                    await sftp.put(
+                        local_path,
+                        remote_path
+                    )
+                else:
+                    async with sftp.open(remote_path, "wb") as f:
+                        await f.write(format_result)
         else:
-            await sftp.put(local_path, remote_path)
+            for filename in listdir(local_dir):
+                await sftp.put(
+                    join(local_dir, filename),
+                    join(remote_dir, filename).replace("\\", "/")
+                )
 
-        return remote_path
+        return remote_dir
     except PermissionDenied:
         raise AUTHORIZE_FAIL
     except:

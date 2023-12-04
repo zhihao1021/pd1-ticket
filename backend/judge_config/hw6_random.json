@@ -1,0 +1,38 @@
+{
+  "command": "hw6",
+  "upload_files": [
+    "hw6_random.c"
+  ],
+  "testcase_name": [
+    "Subtask1",
+    "Subtask2",
+    "Subtask3",
+    "Subtask4"
+  ],
+  "testcase": [
+    "testcase/Subtask1_Random/input.in",
+    "testcase/Subtask2_Random/input.in",
+    "testcase/Subtask3_Random/input.in",
+    "testcase/Subtask4_Random/input.in"
+  ],
+  "answer": [
+    "your_answer/Subtask1_Random/random_1.ans",
+    "your_answer/Subtask1_Random/random_2.ans",
+    "your_answer/Subtask2_Random/random_1.ans",
+    "your_answer/Subtask2_Random/random_2.ans",
+    "your_answer/Subtask3_Random/random_1.ans",
+    "your_answer/Subtask3_Random/random_2.ans",
+    "your_answer/Subtask4_Random/random_1.ans",
+    "your_answer/Subtask4_Random/random_2.ans"
+  ],
+  "user_output": [
+    "your_answer/Subtask1_Random/random_1.out",
+    "your_answer/Subtask1_Random/random_2.out",
+    "your_answer/Subtask2_Random/random_1.out",
+    "your_answer/Subtask2_Random/random_2.out",
+    "your_answer/Subtask3_Random/random_1.out",
+    "your_answer/Subtask3_Random/random_2.out",
+    "your_answer/Subtask4_Random/random_1.out",
+    "your_answer/Subtask4_Random/random_2.out"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "command": "hw7",
+  "upload_files": [
+    "hw7.c"
+  ],
+  "testcase_name": [
+    "Subtask1",
+    "Subtask2-1",
+    "Subtask2-2",
+    "Subtask3-1",
+    "Subtask3-2",
+    "Subtask4-1",
+    "Subtask4-2"
+  ],
+  "testcase": [
+    "testcase/Subtask1/testcase_1.in",
+    "testcase/Subtask2/testcase_1.in",
+    "testcase/Subtask2/testcase_2.in",
+    "testcase/Subtask3/testcase_1.in",
+    "testcase/Subtask3/testcase_2.in",
+    "testcase/Subtask4/testcase_1.in",
+    "testcase/Subtask4/testcase_2.in"
+  ],
+  "answer": [
+    "testcase/Subtask1/testcase_1.out",
+    "testcase/Subtask2/testcase_1.out",
+    "testcase/Subtask2/testcase_2.out",
+    "testcase/Subtask3/testcase_1.out",
+    "testcase/Subtask3/testcase_2.out",
+    "testcase/Subtask4/testcase_1.out",
+    "testcase/Subtask4/testcase_2.out"
+  ],
+  "user_output": [
+    "your_answer/Subtask1/testcase_1.out",
+    "your_answer/Subtask2/testcase_1.out",
+    "your_answer/Subtask2/testcase_2.out",
+    "your_answer/Subtask3/testcase_1.out",
+    "your_answer/Subtask3/testcase_2.out",
+    "your_answer/Subtask4/testcase_1.out",
+    "your_answer/Subtask4/testcase_2.out"
+]
+}

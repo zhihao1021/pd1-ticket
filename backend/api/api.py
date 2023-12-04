@@ -42,7 +42,7 @@ app.include_router(oauth_router)
 app.include_router(pull_router)
 app.include_router(ticket_router)
 app.include_router(upload_router)
-app.include_router(special_judge_router)
+# app.include_router(special_judge_router)
 
 async def api_run(loop: BaseEventLoop):
     logging_file_name = datetime.now().strftime("logs/%Y-%m-%d %H_%M_%S.log")

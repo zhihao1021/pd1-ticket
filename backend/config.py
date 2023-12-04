@@ -15,7 +15,6 @@ EXAMPLE_CONFIG = {
     "ssh_server": "",
     "admin_token": urandom(16).hex(),
     "admins": [],
-    "judge_commands": [],
     "expired_weekday": 3,
     "expired_week": 1,
 }
@@ -36,7 +35,6 @@ KEY = config["key"]
 SSH_ADDRESS = config["ssh_server"]
 ADMIN_TOKEN = config["admin_token"]
 ADMINS: list[str] = config.get("admins", [])
-JUDGE_COMMANDS: list[str] = config.get("judge_commands", [])
 EXPIRED_WEEKDAY: int = config.get("expired_weekday", 3)
 EXPIRED_WEEK: int = config.get("expired_week", 1)
 

@@ -1,0 +1,30 @@
+{
+  "command": "hw5",
+  "upload_files": [
+    "hw5.c"
+  ],
+  "testcase_name": [
+    "Subtask1",
+    "Subtask2",
+    "Subtask3",
+    "Subtask4"
+  ],
+  "testcase": [
+    "testcase/Subtask1_input",
+    "testcase/Subtask2_input",
+    "testcase/Subtask3_input",
+    "testcase/Subtask4_input"
+  ],
+  "answer": [
+    "testcase/Subtask1_output",
+    "testcase/Subtask2_output",
+    "testcase/Subtask3_output",
+    "testcase/Subtask4_output"
+  ],
+  "user_output": [
+    "your_answer/Subtask1_output",
+    "your_answer/Subtask2_output",
+    "your_answer/Subtask3_output",
+    "your_answer/Subtask4_output"
+  ]
+}

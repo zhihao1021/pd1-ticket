@@ -1,0 +1,25 @@
+{
+  "command": "hw8",
+  "upload_files": [
+    "hw8-1.c",
+    "hw8-1.h",
+    "hw8-2.c",
+    "hw8-2.h"
+  ],
+  "testcase_name": [
+    "Subtask1",
+    "Subtask2"
+  ],
+  "testcase": [
+    "testcase/Subtask1/testcase_1.in",
+    "testcase/Subtask2/testcase_1.in"
+  ],
+  "answer": [
+    "testcase/Subtask1/testcase_1.out",
+    "testcase/Subtask2/testcase_1.out"
+  ],
+  "user_output": [
+    "your_answer/Subtask1/testcase_1.out",
+    "your_answer/Subtask2/testcase_1.out"
+  ]
+}

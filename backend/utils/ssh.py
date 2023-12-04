@@ -42,15 +42,23 @@ class JudgeConnection:
         remote_path = f"{self.remote_dir_path}/{remote_file}"
         await self.sftp.put(local_path, remote_path)
 
-    async def write(self, content: Union[bytes, str], remote_file: str):
+    async def write(self, content: Union[bytes, str], remote_file: str, chdir: bool=True):
         if type(content) != bytes: content = content.encode()
-        async with self.sftp.open(f"{self.remote_dir_path}/{remote_file}", "wb") as file:
-            await file.write(content)
+        if chdir:
+            async with self.sftp.open(f"{self.remote_dir_path}/{remote_file}", "wb") as file:
+                await file.write(content)
+        else:
+            async with self.sftp.open(remote_file, "wb") as file:
+                await file.write(content)
 
-    async def read(self, remote_file: str) -> bytes:
+    async def read(self, remote_file: str, chdir: bool=True) -> bytes:
         result = b""
-        async with self.sftp.open(f"{self.remote_dir_path}/{remote_file}", "rb") as file:
-            result = await file.read()
+        if chdir:
+            async with self.sftp.open(f"{self.remote_dir_path}/{remote_file}", "rb") as file:
+                result = await file.read()
+        else:
+            async with self.sftp.open(remote_file, "rb") as file:
+                result = await file.read()
         return result
 
     async def command(self, command: str, timeout: float, chdir: bool=True) -> tuple[str, str, Optional[int]]:

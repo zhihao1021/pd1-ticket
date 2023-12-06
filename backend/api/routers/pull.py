@@ -1,6 +1,6 @@
 from aiofile import async_open
 from asyncssh import PermissionDenied, SFTPClient, SFTPName, SFTPNoSuchFile, SSHClientConnection
-from fastapi import APIRouter, status, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Form, status, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.websockets import WebSocketState
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -10,7 +10,7 @@ from datetime import datetime
 from io import BytesIO
 from os import makedirs, remove
 from os.path import isdir, join
-from typing import Optional, Union
+from typing import Optional
 from zipfile import ZipFile
 
 from config import DATA_DIR
@@ -29,9 +29,8 @@ from ..exceptions import (
 )
 from ..validator import get_user
 
-class PullData(BaseModel):
+class PathList(BaseModel):
     path_list: list[str]
-    download: bool = False
 
 def __ls_filter(item: SFTPName, uid: int, file_or_dir: int=1) -> bool:
     if item.attrs.type != file_or_dir:
@@ -66,6 +65,7 @@ router = APIRouter(
     prefix="/pull",
     tags=["Pull"]
 )
+
 @router.websocket("/explorer")
 async def explorer_websocket(
     ws: WebSocket,
@@ -122,13 +122,11 @@ async def explorer_websocket(
     status_code=status.HTTP_201_CREATED
 )
 async def pull(
-    data: PullData,
+    data: PathList,
     user: User = user_depends
-) -> Union[str, bytes]:
+) -> str:
     try:
         path_list = data.path_list
-        download = data.download
-
         client = await get_ssh_session(
             username=user.username,
             password=user.decrypted_password()
@@ -142,9 +140,7 @@ async def pull(
             filesize = await sftp.getsize(path)
             filesize_sum += filesize
 
-        if download and filesize > 32 * 1024 * 1024:
-            raise DOWNLOAD_OVERSIZE
-        elif filesize > 32 * 1024:
+        if filesize > 32 * 1024:
             raise FILE_OVERSIZE
         
         user_hash = user.hash_value()
@@ -152,39 +148,152 @@ async def pull(
         timestamp = datetime.now().strftime("%Y_%m_%dT%H.%M.%S.%f")
         dir_name = f"{user_hash}-{timestamp}"
 
-        if download:
-            if not isdir("download-temp"):
-                makedirs("download-temp")
-            file_path = join("download-temp", f"{dir_name}.zip")
+        download_dir = join(DATA_DIR, dir_name)
 
-            file_data: list[tuple[str, bytes]] = []
-            for path in path_list:
-                raw_filename = path.rsplit('/', 1)[-1]
+        if not isdir(download_dir):
+            makedirs(download_dir)
 
-                async with sftp.open(path, "rb") as remote_file:
-                    content = await remote_file.read()
-                file_data.append((raw_filename, content))
-            def __write_to_zip():
-                with ZipFile(file_path, "w") as zipfile:
-                    for filename, content in file_data:
-                        zipfile.writestr(filename, content)
-            loop = get_event_loop()
-            await loop.run_in_executor(None, __write_to_zip)
-            async with async_open(file_path, "rb") as df:
-                content = await df.read()
-            await loop.run_in_executor(None, remove, file_path)
-            return StreamingResponse(BytesIO(content))
-        else:
-            download_dir = join(DATA_DIR, dir_name)
+        for path in path_list:
+            raw_filename = path.rsplit('/', 1)[-1]
+            await sftp.get(path, join(download_dir, raw_filename))
 
-            if not isdir(download_dir):
-                makedirs(download_dir)
+        return dir_name
+    except PermissionDenied:
+        raise AUTHORIZE_FAIL
+    except:
+        raise UNKNOW_ERROR
+    finally:
+        if client:
+            client.close()
 
-            for path in path_list:
-                raw_filename = path.rsplit('/', 1)[-1]
-                await sftp.get(path, join(download_dir, raw_filename))
+@router.post(
+    path="/download",
+    status_code=status.HTTP_200_OK
+)
+async def download(
+    data: PathList,
+    user: User = user_depends
+) -> StreamingResponse:
+    try:
+        path_list = data.path_list
+        client = await get_ssh_session(
+            username=user.username,
+            password=user.decrypted_password()
+        )
+        filesize_sum = 0
+        for path in path_list:
+            sftp = await client.start_sftp_client()
+            isfile = await sftp.isfile(path)
+            if not isfile:
+                raise FILE_NOT_FOUND
+            filesize = await sftp.getsize(path)
+            filesize_sum += filesize
 
-            return dir_name
+        if filesize > 32 * 1024 * 1024:
+            raise DOWNLOAD_OVERSIZE
+        
+        user_hash = user.hash_value()
+
+        timestamp = datetime.now().strftime("%Y_%m_%dT%H.%M.%S.%f")
+        dir_name = f"{user_hash}-{timestamp}"
+
+        if not isdir("download-temp"):
+            makedirs("download-temp")
+        file_path = join("download-temp", f"{dir_name}.zip")
+
+        file_data: list[tuple[str, bytes]] = []
+        for path in path_list:
+            raw_filename = path.rsplit('/', 1)[-1]
+
+            async with sftp.open(path, "rb") as remote_file:
+                content = await remote_file.read()
+            file_data.append((raw_filename, content))
+        def __write_to_zip():
+            with ZipFile(file_path, "w") as zipfile:
+                for filename, content in file_data:
+                    zipfile.writestr(filename, content)
+        loop = get_event_loop()
+        await loop.run_in_executor(None, __write_to_zip)
+        async with async_open(file_path, "rb") as df:
+            content = await df.read()
+        await loop.run_in_executor(None, remove, file_path)
+        return StreamingResponse(BytesIO(content))
+    except PermissionDenied:
+        raise AUTHORIZE_FAIL
+    except:
+        raise UNKNOW_ERROR
+    finally:
+        if client:
+            client.close()
+
+@router.post(
+    path="/edit",
+    status_code=status.HTTP_200_OK
+)
+async def edit(
+    file_path: str = Form(),
+    user: User = user_depends
+) -> str:
+    try:
+        client = await get_ssh_session(
+            username=user.username,
+            password=user.decrypted_password()
+        )
+
+        sftp = await client.start_sftp_client()
+        isfile = await sftp.isfile(file_path)
+        if not isfile:
+            raise FILE_NOT_FOUND
+        filesize = await sftp.getsize(file_path)
+        if filesize > 32 * 1024:
+            raise FILE_OVERSIZE
+
+        async with sftp.open(file_path, "rb") as remote_file:
+            content: bytes = await remote_file.read()
+            return content.decode()
+    except PermissionDenied:
+        raise AUTHORIZE_FAIL
+    except:
+        raise UNKNOW_ERROR
+    finally:
+        if client:
+            client.close()
+
+@router.post(
+    path="/upload",
+    status_code=status.HTTP_201_CREATED
+)
+async def upload(
+    files: list[UploadFile],
+    remote_path: str = Form(),
+    user: User = user_depends
+) -> str:
+    try:
+        total_size = 0
+        for file in files:
+            total_size += file.size
+        if total_size > 32 * 1024 * 1024:
+            raise DOWNLOAD_OVERSIZE
+
+        client = await get_ssh_session(
+            username=user.username,
+            password=user.decrypted_password()
+        )
+
+        sftp = await client.start_sftp_client()
+        if not await sftp.isdir(remote_path):
+            await sftp.makedirs(remote_path)
+
+        for file in files:
+            dir_file_list = await sftp.listdir(remote_path)
+            new_file_name = file.filename
+            i = 1
+            while new_file_name in dir_file_list:
+                new_file_name = f"{file.filename} ({i})"
+                i += 1
+            async with sftp.open(f"{remote_path}/{new_file_name}", "wb") as remote_file:
+                await remote_file.write(await file.read())
+        return remote_path
     except PermissionDenied:
         raise AUTHORIZE_FAIL
     except:

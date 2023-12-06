@@ -62,10 +62,15 @@
         padding-top: 0.2em;
         align-items: center;
         flex-wrap: wrap;
-        button {
+        button, label {
             color: inherit;
             height: 1.8em;
             font-size: var(--std-font-size);
+        }
+        label {
+            input {
+                display: none;
+            }
         }
     }
 }

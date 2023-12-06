@@ -1,8 +1,9 @@
-import React from "react";
+import React, { ChangeEvent } from "react";
 
 import {
     downloadFiles,
-    pullFiles
+    pullFiles,
+    uploadFiles,
 } from "../../api/ssh";
 import {
     addMessage,
@@ -39,6 +40,7 @@ export default class SSHPageState extends React.Component<propsType, stateType> 
         if (props.show) {
             this.#connectWs();
         }
+        this.uploadFiles = this.uploadFiles.bind(this);
     }
 
     componentDidUpdate(prevProps: propsType, prevState: stateType): void {
@@ -144,7 +146,7 @@ export default class SSHPageState extends React.Component<propsType, stateType> 
             downloadBlob(file, "download.zip");
             addMessage("INFO", "下載成功。\nDownload success.");
         }).catch(() => {
-            addMessage("INFO", "下載失敗。\nDownload failed.");
+            addMessage("ERROR", "下載失敗。\nDownload failed.");
         }).finally(() => {
             this.setState({selectedFileArray: []});
             switchLoading(false);
@@ -162,10 +164,28 @@ export default class SSHPageState extends React.Component<propsType, stateType> 
             addMessage("INFO", "拉取成功。\nDownload success.");
             changeShowTicket(ticket);
         }).catch(() => {
-            addMessage("INFO", "拉取失敗。\nDownload failed.");
+            addMessage("ERROR", "拉取失敗。\nDownload failed.");
         }).finally(() => {
             this.setState({selectedFileArray: []});
             switchLoading(false);
+        })
+    }
+
+    uploadFiles(event: ChangeEvent<HTMLInputElement>) {
+        const files = Array.from(event.target.files ?? []);
+        event.target.value = "";
+        if (files?.length === 0 || !files) {
+            addMessage("WARNING", "未選擇檔案。\nNo selected files.")
+            return;
+        }
+        const {path} = this.state;
+        switchLoading(true);
+        uploadFiles(files, path).then(() => {
+            addMessage("INFO", "上傳成功。\nUpload success.");
+        }).catch(() => {
+            addMessage("ERROR", "上傳失敗。\nUpload failed.");
+        }).finally(() => {
+            this.enterDirectory(".");
         })
     }
 }

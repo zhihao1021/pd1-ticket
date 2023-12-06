@@ -55,8 +55,11 @@ export default class UploadPageState extends React.Component<propsType, stateTyp
     }
 
     selectFile(event: React.ChangeEvent<HTMLInputElement>) {
+        const files = Array.from(event.target.files ?? []);
+        event.target.value = "";
+        if (!files) return;
         this.setState({
-            selectedFiles: Array.from(event.target.files ?? []),
+            selectedFiles: files,
             previewIndex: 0,
         });
     }

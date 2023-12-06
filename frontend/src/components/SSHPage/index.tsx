@@ -62,7 +62,11 @@ export default class SSHPage extends SSHPageState {
                             className="bt bt-pull"
                             onClick={() => {this.pullFiles();}}
                         >Pull</button>
-                        <button className="bt bt-upload">Upload</button>
+                        <label className="bt bt-upload">
+                            Upload
+                            <input type="file" accept=".*" multiple onChange={this.uploadFiles} />
+                        </label>
+                        {/* <button className="bt bt-upload">Upload</button> */}
                         <button className="bt bt-edit">Edit</button>
                     </div>
                 </Block>

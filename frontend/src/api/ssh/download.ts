@@ -2,10 +2,9 @@ import axios from "axios";
 
 export default async function downloadFiles(fileArray: Array<string>): Promise<Blob> {
     const response = await axios.post(
-        "/pull",
+        "/pull/download",
         {
             path_list: fileArray,
-            download: true
         },
         {
             headers: { "Content-Type": "application/json; application/octet-stream" },

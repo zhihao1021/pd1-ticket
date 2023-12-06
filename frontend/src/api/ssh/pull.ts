@@ -5,7 +5,6 @@ export default async function pullFiles(fileArray: Array<string>): Promise<strin
         "/pull",
         {
             path_list: fileArray,
-            download: false
         },
     )
 

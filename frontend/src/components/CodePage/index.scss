@@ -1,0 +1,82 @@
+#codePage {
+    font-size: var(--std-font-size);
+    color: var(--color);
+    button, label {
+        color: inherit;
+        font-size: inherit;
+        height:1.8em;
+        line-height: 1.8em;
+    }
+    .info {
+        height: 4em;
+        div.ticketId {
+            height: 2em;
+            line-height: 2em;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow-x: hidden;
+            .key {
+                padding-right: 1em;
+                font-weight: bold;
+            }
+        }
+        div.buttonBar {
+            height: 2em;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5em;
+            align-items: center;
+            > *:nth-last-child(2) {
+                margin-right: auto;
+            }
+            .uploadBlock {
+                input {
+                    margin-right: 0.5em;
+                    color: var(--sec-color);
+                    width: 6em;
+                    height: 1.5em;
+                    line-height: 1.5em;
+                    font-size: inherit;
+                    background-color: transparent;
+                    border: none;
+                    outline: none;
+                    border-bottom: 1px solid var(--sec-color);
+                    transition: color 0.5s, border-color 0.5s;
+                }
+                input:focus {
+                    color: var(--color);
+                    border-color: var(--color);
+                }
+            }
+        }
+    }
+    .block:nth-child(2) {
+        font-size: var(--std-font-size);
+        height: calc(100% - 7em - 6.5rem);
+    }
+    .preview {
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5em;
+        .buttonBar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5em;
+            > *:nth-last-child(2) {
+                margin-right: auto;
+            }
+        }
+    }
+    @media (max-width: 38.5em) or (max-aspect-ratio: 2/3) {
+        .info {
+            height: 6em;
+        }
+        .block:nth-child(2) {
+            font-size: var(--std-font-size);
+            height: calc(100% - 9em - 6.5rem);
+        }
+    }
+}
+

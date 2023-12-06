@@ -1,0 +1,10 @@
+#announcement {
+    color: var(--color);
+    font-size: calc(1.2 * var(--std-font-size));
+    white-space: pre-line;
+    ul {
+        height: 100%;
+        margin: 0;
+        overflow-y: auto;
+    }
+}

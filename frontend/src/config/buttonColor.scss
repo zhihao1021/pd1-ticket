@@ -1,0 +1,24 @@
+@import url(./buttonColor-dark.scss);
+@import url(./buttonColor-light.scss);
+
+.bt {
+    // padding: 0.3em 1em;
+    // font-size: 1.2rem;
+    padding: 0 1rem;
+    min-width: calc(5.5em - 2rem);
+    text-align: center;
+    border: none;
+    border-radius: 0.5em;
+    outline: none;
+    user-select: none;
+    cursor: pointer;
+    box-shadow: 0.15em 0.15em 0.3em -0.15em #000;
+    transform: translateY(0);
+    transition: transform 0.5s, filter 0.5s, background-color 0.5s;
+}
+.bt:hover {
+    transform: translateY(-0.1em);
+}
+button.bt {
+    min-width: 5.5em;
+}

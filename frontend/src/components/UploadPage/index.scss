@@ -1,0 +1,42 @@
+#uploadPage {
+    font-size: var(--std-font-size);
+    color: var(--color);
+    button, label {
+        color: inherit;
+        font-size: inherit;
+        height:1.8em;
+        line-height: 1.8em;
+    }
+    .upload {
+        height: 2em;
+        display: flex;
+        gap: 0.5em;
+        align-items: center;
+        label input{
+            display: none;
+            flex: 1;
+        }
+        span {
+            flex: 1;
+            font-size: 1.1em;
+            margin-right: auto;
+            white-space: nowrap;
+            overflow-x: auto;
+        }
+    }
+    .block:nth-child(2) {
+        font-size: var(--std-font-size);
+        height: calc(100% - 5em - 6.5rem);
+    }
+    .preview {
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5em;
+        .buttonBar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+    }
+}

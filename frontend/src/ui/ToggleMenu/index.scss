@@ -1,0 +1,96 @@
+div.page {
+    div.toggleMenu {
+        position: relative;
+        font-size: inherit;
+        height: 1.8em;
+        line-height: 1.8em;
+        color: var(--sec-color);
+        border-color: var(--sec-color);
+        text-align: center;
+        isolation: isolate;
+        z-index: 2;
+        .mask {
+            position: relative;
+            height: calc(1.8em - 2px);
+            min-width: 5em;
+            padding: 0 0.5em;
+            padding-right: 2em;
+            border: 1px solid;
+            border-color: inherit;
+            background-color: var(--bg);
+            overflow: hidden;
+            transition: height 0.5s, border-color 0.5s;
+            z-index: 0;
+            div {
+                transition: color 0.5s;
+                cursor: pointer;
+                user-select: none;
+            }
+            div:hover {
+                color: var(--color);
+            }
+            div.selected {
+                position: sticky;
+                top: 0;
+                background-color: var(--bg);
+            }
+        }
+        .mask::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: calc(1.8em - 2px);
+            height: 1px;
+            width: 100%;
+            opacity: 0%;
+            background-color: var(--sec-color);
+            transition: opacity 0.5s;
+        }
+    }
+    div.toggleMenu:hover {
+        border-color: var(--color);
+    }
+    div.toggleMenu[data-open=true] {
+        .mask {
+            height: calc(1.8em * (var(--rows) + 1));
+            overflow-y: auto;
+        }
+        .mask::after {
+            opacity: 30%;
+        }
+    }
+
+    div.toggleMenu::before,
+    div.toggleMenu::after {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 1.8em;
+        height: 100%;
+        text-align: center;
+        color: inherit;
+        user-select: none;
+        cursor: pointer;
+        font-family: "Material Symbols Outlined";
+        z-index: 1;
+        transition: transform 0.5s, opacity 0.5s, color 0.5s;
+    }
+    div.toggleMenu:hover::before,
+    div.toggleMenu:hover:after {
+        color: var(--color);
+    }
+    div.toggleMenu::before {
+        content: "expand_content";
+    }
+    div.toggleMenu[data-open=true]::before {
+        opacity: 0%;
+        transform: scale(0);
+    }
+    div.toggleMenu::after {
+        content: "collapse_content";
+    }
+    div.toggleMenu[data-open=false]::after {
+        opacity: 0%;
+        transform: scale(0);
+    }
+}

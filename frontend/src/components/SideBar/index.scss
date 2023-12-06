@@ -1,0 +1,176 @@
+#sideBar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 13em;
+    max-width: 100vw;
+    color: var(--side-bar);
+    font-size: 1.2rem;
+    font-weight: 200;
+    pointer-events: none;
+    user-select: none;
+    isolation: isolate;
+    div.switchButton,
+    div.themeButton {
+        height: 2rem;
+        line-height: 2rem;
+        width: 2rem;
+        font-family: "Material Symbols Outlined";
+        font-weight: 400;
+        font-size: 1.5rem;
+        text-align: left;
+        pointer-events: initial;
+        cursor: pointer;
+        z-index: 1;
+    }
+    div.switchButton {
+        position: absolute;
+        left: 0.3rem;
+        top: 0.6rem;
+    }
+    div.themeButton {
+        margin-top: auto;
+        position: relative;
+        margin: auto auto 0.6rem 0.3rem;
+        padding-top: 2em;
+        // // bottom: 0.5em;
+        // top: calc(100% - 0.5em - 2rem);
+    }
+    div.switchButton::before,
+    div.switchButton::after,
+    div.themeButton::before,
+    div.themeButton::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        height: 2rem;
+        width: 2rem;
+        text-align: center;
+        transition: opacity 0.5s, transform 0.5s;
+    }
+    div.switchButton::before,
+    div.switchButton::after {
+        top: 0;
+    }
+    div.themeButton::before,
+    div.themeButton::after {
+        bottom: 0;
+    }
+    div.switchButton::before,
+    div.themeButton::before {
+        opacity: 100%;
+        transform: rotate(0) scale(1);
+    }
+    div.switchButton::after,
+    div.themeButton::after {
+        opacity: 0%;
+        transform: rotate(90deg) scale(0);
+    }
+    div.switchButton::before {
+        content: "menu";
+    }
+    div.switchButton::after {
+        content: "close";
+    }
+    div.themeButton::before {
+        content: "light_mode";
+    }
+    div.themeButton::after {
+        content: "dark_mode";
+    }
+    div.entity {
+        position: relative;
+        top: 0;
+        left: calc(-100% - 1em);
+        height: calc(100% - 3em);
+        width: 100%;
+        padding-top: 3em;
+        white-space: pre-line;
+        background-color: var(--side-bar-bg);
+        box-shadow: 0 0 1em 0em #000;
+        transition: left 0.5s;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        > .head,
+        > .body,
+        > .tail {
+            position: relative;
+            padding: 0.5em;
+            border-bottom: 1px solid var(--sec-color);
+        }
+        .head {
+            font-weight: 400;
+        }
+        .body,
+        .tail {
+            padding-top: 0.8em;
+            padding-bottom: 0.8em;
+            cursor: pointer;
+            transition: padding 0.5s, color 0.3s;
+        }
+        .body:hover,
+        .tail:hover {
+            padding-top: 0.65em;
+            padding-bottom: 0.95em;
+            color: var(--color);
+        }
+        .body::after,
+        .tail::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 100%;
+            width: 0em;
+            background-color: var(--color);
+            transition: width 0.2s linear;
+        }
+        .body:hover::after,
+        .tail:hover::after {
+            width: 0.25em;
+        }
+        .body[data-select=true] {
+            color: var(--side-bar-select);
+        }
+        .body[data-select=true]::after {
+            width: 0.25em;
+            background-color: var(--side-bar-select);
+        }
+        .tail {
+            border: none;
+        }
+        .tail:hover {
+            color: #F22;
+        }
+        .tail::after {
+            background-color: #F22;
+        }
+    }
+}
+#sideBar[data-show=true] {
+    pointer-events: initial;
+    div.switchButton::before {
+        opacity: 0%;
+        transform: rotate(-90deg) scale(0);
+    }
+    div.switchButton::after {
+        opacity: 100%;
+        transform: rotate(0) scale(1);
+    }
+    div.entity {
+        left: 0;
+    }
+}
+
+#app[data-theme=light] {
+    div.themeButton::before {
+        opacity: 0%;
+        transform: rotate(-90deg) scale(0);
+    }
+    div.themeButton::after {
+        opacity: 100%;
+        transform: rotate(0) scale(1);
+    }
+}

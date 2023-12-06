@@ -1,65 +1,83 @@
+@import url(./hljs-style/atom-one-dark.min.scss);
+@import url(./hljs-style/atom-one-light.min.scss);
+
 #app {
-    height: 100vh;
-    width: 100vw;
-    background-color: #222;
-    .page {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    // color: var(--color);
+    background-color: var(--bg);
+    div.page {
         position: absolute;
         top: 0;
         left: 0;
-        height: calc(100vh - 6rem);
-        width: 100vw;
-        display: flex;
-        flex-direction: column;
-        gap: 3rem;
-        padding: 3rem 0;
-        color: #fff;
-        overflow: hidden;
+        height: 100%;
+        width: 100%;
+        isolation: isolate;
+        transition: opacity 0.5s, transform 0.5s;
+    }
+    div.page[data-show=true] {
+        z-index: 1;
+        pointer-events: initial;
         opacity: 100%;
         transform: translateY(0);
-        pointer-events: initial;
-        z-index: 1;
-        transition:
-            opacity 0.5s,
-            transform 0.5s;
-        .block {
-            position: relative;
-            width: 60%;
-            padding: 2rem 2rem 1.5rem 2rem;
-            margin: 0 auto;
-            border: #fff solid 0.1rem;
-            h2 {
-                position: absolute;
-                top: -1.75rem;
-                left: 1rem;
-                margin: 0;
-                padding: 0 1rem;
-                height: 3rem;
-                line-height: 3rem;
-                background-color: #222;
-                font-size: 2.2rem;
-            }
-        }
-        .block:has(.secBlock) {
-            flex: 1;
-            border-color: transparent;
-            h2 {
-                z-index: 1;
-            }
-            .secBlock {
-                position: absolute;
-                left: -0.1em;
-                top: -0.1em;
-                overflow: hidden;
-                max-height: calc(100% - 3.5rem);
-                width: calc(100% - 4rem);
-            }
-        }
     }
-    
-    .page:not(.show) {
+    div.page[data-show=false] {
         z-index: 0;
-        opacity: 0%;
-        transform: translateY(2vh);
         pointer-events: none;
-    }    
+        opacity: 0%;
+        transform: translateY(-3vh);
+    }
+
+    pre {
+        background-color: var(--pre-bg);
+        padding: 1em;
+        margin: 0;
+        border-top-left-radius: 1em;
+        overflow: auto;
+    }
+
+    --std-font-size: 1.25rem;
+}
+
+#app[data-theme=dark] {
+    --bg: #222;
+    --color: #FFF;
+    --sec-color: #999;
+    --cp-color: #000;
+    --loading-bg: #000A;
+    --login-bg: #FFF;
+    --login-input: #2228;
+    --login-info: #888;
+    --login-button: #666;
+    --side-bar: #FFF8;
+    --side-bar-select: #F82;
+    --side-bar-bg: #191919;
+    --pre-bg: #000;
+    --ssh-select: #777;
+    --popup: #181818;
+    --popup-bg: #222A;
+    --pre-line: #AAA;
+    --pre-diff: #D22C;
+}
+
+#app[data-theme=light] {
+    --bg: #FFF;
+    --color: #000;
+    --sec-color: #777;
+    --cp-color: #FFF;
+    --loading-bg: #FFFA;
+    --login-bg: #999;
+    --login-input: #DDDA;
+    --login-info: #CCC;
+    --login-button: #CCC;
+    --side-bar: #333;
+    --side-bar-select: #28F;
+    --side-bar-bg: #CCC;
+    --pre-bg: #CCC;
+    --ssh-select: #999;
+    --popup: #C8C8C8;
+    --popup-bg: #DDDA;
+    --pre-line: #222;
+    --pre-diff: #F11C;
 }

@@ -1,0 +1,98 @@
+#loginPage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .box {
+        width: 20rem;
+        height: 30rem;
+        display: flex;
+        gap: 1.5rem;
+        flex-direction: column;
+        align-items: center;
+        padding: 1.5rem 2rem;
+        color: var(--cp-color);
+        background-color: var(--login-bg);
+        border-radius: 1.5rem;
+        font-size: 2rem;
+        h2 {
+            margin: 0;
+            font-size: 1.5em;
+            text-align: center;
+        }
+        div.inputBox {
+            width: 100%;
+            display: flex;
+            gap: 0.5rem;
+            align-content: center;
+            color: var(--login-input);
+            span {
+                transition: color 0.5s;
+            }
+            input {
+                flex: 1;
+                font-size: 0.85em;
+                border: none;
+                border-bottom: 1px solid var(--login-input);
+                color: inherit;
+                background-color: transparent;
+                overflow: hidden;
+                outline: none;
+                transition: border-color 0.5s, color 0.5s;
+            }
+            input[type=password] {
+                letter-spacing: 0.5em;
+            }
+            input::placeholder {
+                font-size: 0.8em;
+                color: inherit;
+                letter-spacing: initial;
+            }
+        }
+        div.inputBox:has(input:focus) {
+            color: inherit;
+            input {
+                border-bottom-color: var(--cp-color);
+            }
+        }
+        div.inputBox[data-warning=true] {
+            color: #F44;
+            input {
+                border-color: #F44;
+            }
+        }
+        .info {
+            width: 100%;
+            color: var(--login-info);
+            font-size: 0.5em;
+        }
+        .error {
+            width: calc(100% - 1.2em);
+            padding: 0.6em;
+            font-size: 0.6em;
+            border-radius: 0.5em;
+            color: var(--color);
+            background-color: #F88;
+        }
+        button {
+            width: 100%;
+            margin-top: auto;
+            padding: 0.3em;
+            border: none;
+            border-radius: 0.5em;
+            color: var(--color);
+            background-color: var(--login-button);
+            font-size: 0.8em;
+            text-align: center;
+            user-select: none;
+            outline: none;
+            cursor: pointer;
+            box-shadow: 0.15em 0.15em 0.3em -0.15em #000;
+            transform: translateY(0);
+            transition: transform 0.5s, background-color 0.5s;
+        }
+        button:hover {
+            background-color: var(--cp-color);
+            transform: translateY(-0.08em);
+        }
+    }
+}

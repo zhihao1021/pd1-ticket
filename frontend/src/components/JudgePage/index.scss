@@ -1,0 +1,78 @@
+#judge {
+    color: var(--color);
+    font-size: var(--std-font-size);
+    .sec-block {
+        display: flex;
+        flex-direction: column;
+    }
+    .info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5em;
+        span {
+            margin-right: auto;
+        }
+    }
+    .codeBlock {
+        flex: 1;
+        display: flex;
+        gap: 0.5em;
+        overflow: hidden;
+        .resultBox {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 0.2em;
+            .title {
+                font-size: 1.2em;
+            }
+            pre {
+                flex: 1;
+                overflow: auto;
+                display: flex;
+                code.lineN {
+                    position: sticky;
+                    left: 0;
+                    text-align: right;
+                    user-select: none;
+                    color: var(--pre-line);
+                    div {
+                        padding-left: 0.5em;
+                        padding-right: 0.5em;
+                        background-color: var(--pre-bg);
+                    }
+                    div[data-diff=true] {
+                        background-color: var(--pre-diff);
+                    }
+                }
+            }
+            pre:has(code.lineN) {
+                padding: 1em !important;
+                padding-left: 0 !important;
+            }
+            .buttonBar {
+                padding-top: 0.2em;
+                display: flex;
+                gap: 0.5em;
+                button {
+                    font-size: inherit;
+                    color: inherit;
+                    height: 1.8em;
+                }
+            }
+        }
+        .resultBox[data-show=false] {
+            display: none;
+        }
+    }
+    .codeBlock:has(.sec[data-show=true]) {
+        .resultBox {
+            width: calc(50% - 0.25em);
+        }
+    }
+    .codeBlock:has(.sec[data-show=false]) {
+        .resultBox {
+            width: calc(100%);
+        }
+    }
+}

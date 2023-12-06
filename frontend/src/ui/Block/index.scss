@@ -1,0 +1,31 @@
+div.page > .block {
+    position: relative;
+    width: max(105vh, 40em);
+    max-width: 95vw;
+    margin: 2.5rem auto 1.5rem auto;
+    > h2 {
+        position: absolute;
+        top: -0.75em;
+        left: 0.5em;
+        margin: 0;
+        padding: 0 0.5em;
+        color: var(--color);
+        background-color: var(--bg);
+        text-align: center;
+        font-size: 2.5rem;
+    }
+    > .sec-block {
+        max-height: calc(100% - 3rem);
+        width: calc(100% - 4rem);
+        border: 0.2rem solid var(--color);
+        padding: 2rem 2rem 1rem 2rem;
+        overflow: hidden;
+    }
+}
+
+div.page > .block[data-full=true] {
+    height: calc(100% - 4rem);
+    > .sec-block {
+        height: calc(100% - 3rem);
+    }
+}

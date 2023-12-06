@@ -1,0 +1,45 @@
+#app[data-theme=light] {
+    .bt:hover {
+        filter: brightness(0.9);
+    }
+
+    .bt-delete {
+        background-color: #F22;
+    }
+    .bt-download {
+        background-color: #F82;
+    }
+    .bt-download-sec {
+        background-color: #C43;
+    }
+    .bt-select {
+        background-color: #5C5;
+    }
+    .bt-upload {
+        background-color: #3AF;
+    }
+    .bt-format {
+        background-color: #F3F;
+    }
+    .bt-copy {
+        background-color: #EE3;
+    }
+    .bt-share {
+        background-color: #96F;
+    }
+    .bt-judge {
+        background-color: #6EE;
+    }
+    .bt-pull {
+        background-color: #C3A;
+    }
+    .bt-edit {
+        background-color: #8C6
+    }
+    .bt-ok {
+        background-color: #E22;
+    }
+    .bt-cancel {
+        background-color: #AAA;
+    }
+}

@@ -90,9 +90,13 @@ async def explorer_websocket(
         path = await ws.receive_text()
         path = await sftp.realpath(path)
         if not await sftp.isdir(path):
-            path = await sftp.realpath(f"~")
+            path = await sftp.realpath(f"~/")
         while True:
-            result = await listdir(sftp, uid, path)
+            try:
+                result = await listdir(sftp, uid, path)
+            except:
+                path = await sftp.realpath(f"~/")
+                result = await listdir(sftp, uid, path)
             await ws.send_json(result.model_dump())
             try:
                 selected = await ws.receive_text()
